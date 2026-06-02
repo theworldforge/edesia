@@ -377,6 +377,13 @@
   <input type="password" class="api-key-input" id="api-key-input" placeholder="sk-ant-...">
   <button class="btn-sm" onclick="saveApiKey()">Save</button>
 </div>
+<div class="api-key-row" style="gap:6px;">
+  <span class="api-key-label" style="flex-shrink:0;">Gist</span>
+  <input type="password" class="api-key-input" id="gist-token-input" placeholder="GitHub token (ghp_...)">
+  <input type="text" class="api-key-input" id="gist-id-input" placeholder="Gist ID" style="max-width:140px;">
+  <button class="btn-sm" onclick="saveGistSettings()">Save</button>
+  <button class="btn-sm" id="gist-sync-btn" onclick="syncFavs(true)" title="Sync now" style="flex-shrink:0;">↻</button>
+</div>
 
 <!-- Budget Panel -->
 <div class="budget-panel">
@@ -427,6 +434,9 @@
   <button class="btn-recommend" id="rec-btn" onclick="getRecommendations()">
     <span id="rec-btn-icon">💡</span> What should I eat?
   </button>
+  <button class="btn-recommend" onclick="togglePlanPanel()" style="border-color:var(--amber);color:var(--amber);margin-top:6px;">
+    🍽 Plan Ahead
+  </button>
 </div>
 
 <!-- Recommendation Panel -->
@@ -440,6 +450,33 @@
   <div class="rec-snacks" id="rec-snacks"></div>
   <div class="rec-section-label">Meal ideas if you haven't decided yet</div>
   <div class="rec-meals" id="rec-meals"></div>
+</div>
+
+<!-- Plan Ahead Panel -->
+<div class="plan-panel" id="plan-panel">
+  <div class="plan-header">
+    <span>🍽 Dinner Planner</span>
+    <button class="rec-close" onclick="togglePlanPanel()">✕</button>
+  </div>
+  <div class="plan-input-row">
+    <input type="text" class="plan-input" id="plan-input" placeholder="Describe your planned dinner…">
+    <button class="btn-plan-calc" id="plan-btn" onclick="calcPlan()">Calculate</button>
+  </div>
+  <div class="plan-results" id="plan-results">
+    <div style="font-size:0.6rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;">Planned dinner macros</div>
+    <div class="modal-macros" style="margin-bottom:10px;">
+      <div class="modal-macro"><div class="modal-macro-val kcal" id="pl-kcal">0</div><div class="modal-macro-lbl">Kcal</div></div>
+      <div class="modal-macro"><div class="modal-macro-val prot" id="pl-prot">0g</div><div class="modal-macro-lbl">Protein</div></div>
+      <div class="modal-macro"><div class="modal-macro-val carbs" id="pl-carbs">0g</div><div class="modal-macro-lbl">Carbs</div></div>
+      <div class="modal-macro"><div class="modal-macro-val fat" id="pl-fat">0g</div><div class="modal-macro-lbl">Fat</div></div>
+    </div>
+    <div class="plan-gap-label">Projected end-of-day (eaten + dinner)</div>
+    <div class="plan-projected" id="plan-projected"></div>
+    <div class="plan-gap-label" style="margin-top:10px;">Gap to fill with snacks before dinner</div>
+    <div class="plan-gap-chips" id="plan-gap-chips"></div>
+    <div class="plan-snacks-label">Suggested snacks</div>
+    <div id="plan-snacks"></div>
+  </div>
 </div>
 
 <!-- Fitbit -->
@@ -468,40 +505,6 @@
 <div class="section-header">Today's Log</div>
 <div class="log-list" id="log-list">
   <div class="empty-state">Nothing logged yet.</div>
-</div>
-
-<!-- Plan Ahead Button -->
-<div style="padding: 12px 16px 0;">
-  <button onclick="togglePlanPanel()" style="width:100%;background:var(--surface);border:1px dashed var(--amber);border-radius:8px;color:var(--amber);cursor:pointer;font-family:var(--display);font-size:0.85rem;font-weight:700;letter-spacing:0.06em;padding:10px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;">
-    🍽 Plan Ahead
-  </button>
-</div>
-
-<!-- Plan Ahead Panel -->
-<div class="plan-panel" id="plan-panel">
-  <div class="plan-header">
-    <span>🍽 Dinner Planner</span>
-    <button class="rec-close" onclick="togglePlanPanel()">✕</button>
-  </div>
-  <div class="plan-input-row">
-    <input type="text" class="plan-input" id="plan-input" placeholder="Describe your planned dinner…">
-    <button class="btn-plan-calc" id="plan-btn" onclick="calcPlan()">Calculate</button>
-  </div>
-  <div class="plan-results" id="plan-results">
-    <div style="font-size:0.6rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;">Planned dinner macros</div>
-    <div class="modal-macros" style="margin-bottom:10px;">
-      <div class="modal-macro"><div class="modal-macro-val kcal" id="pl-kcal">0</div><div class="modal-macro-lbl">Kcal</div></div>
-      <div class="modal-macro"><div class="modal-macro-val prot" id="pl-prot">0g</div><div class="modal-macro-lbl">Protein</div></div>
-      <div class="modal-macro"><div class="modal-macro-val carbs" id="pl-carbs">0g</div><div class="modal-macro-lbl">Carbs</div></div>
-      <div class="modal-macro"><div class="modal-macro-val fat" id="pl-fat">0g</div><div class="modal-macro-lbl">Fat</div></div>
-    </div>
-    <div class="plan-gap-label">Projected end-of-day (eaten + dinner)</div>
-    <div class="plan-projected" id="plan-projected"></div>
-    <div class="plan-gap-label" style="margin-top:10px;">Gap to fill with snacks before dinner</div>
-    <div class="plan-gap-chips" id="plan-gap-chips"></div>
-    <div class="plan-snacks-label">Suggested snacks</div>
-    <div id="plan-snacks"></div>
-  </div>
 </div>
 
 <!-- Fixed Input -->
@@ -654,6 +657,8 @@ const KEY_FAVS    = STORAGE_PREFIX + 'favs';
 const KEY_TARGETS = STORAGE_PREFIX + 'targets';
 const KEY_API     = 'scrf_ak';
 const KEY_PIN     = STORAGE_PREFIX + 'pin';
+const KEY_GIST_TOKEN = STORAGE_PREFIX + 'gist_token';
+const KEY_GIST_ID    = STORAGE_PREFIX + 'gist_id';
 
 const BMR         = 1760;   // Renpho measured BMR
 const DEFICIT     = 500;    // Daily calorie deficit target
@@ -846,6 +851,12 @@ function init() {
 
   const savedKey = localStorage.getItem(KEY_API);
   if (savedKey) document.getElementById('api-key-input').value = savedKey;
+
+  const savedGistToken = localStorage.getItem(KEY_GIST_TOKEN);
+  const savedGistId    = localStorage.getItem(KEY_GIST_ID);
+  if (savedGistToken) document.getElementById('gist-token-input').value = savedGistToken;
+  if (savedGistId)    document.getElementById('gist-id-input').value    = savedGistId;
+
   if (burn) document.getElementById('fitbit-burn').value = burn;
 
   document.getElementById('target-kcal').placeholder = `Kcal (${targets.kcal})`;
@@ -1177,28 +1188,92 @@ function removeEntry(i) {
   renderAll();
 }
 
-// ─── FAVOURITES ──────────────────────────────────────────────────────────────
+// ─── FAVOURITES + GIST SYNC ──────────────────────────────────────────────────
 
 function saveFavourite() {
   if (!pendingEntry) return;
   const fav = { name: pendingEntry.name, kcal: pendingEntry.kcal, prot: pendingEntry.prot, carbs: pendingEntry.carbs, fat: pendingEntry.fat, micro: pendingEntry.micro };
-  if (!favs.find(f => f.name === fav.name)) { favs.push(fav); localStorage.setItem(KEY_FAVS, JSON.stringify(favs)); }
+  if (!favs.find(f => f.name === fav.name)) {
+    favs.push(fav);
+    localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
+    syncFavs();
+  }
   showToast('Saved to favourites');
 }
 
 function addFavourite(i) {
   const f = favs[i];
-  pendingEntry = {
-    ...f,
-    time: new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' })
-  };
+  pendingEntry = { ...f, time: new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }) };
   showModal(pendingEntry);
 }
 
 function deleteFav(i) {
   favs.splice(i, 1);
   localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
+  syncFavs();
   renderFavs();
+}
+
+// ─── GIST SYNC ────────────────────────────────────────────────────────────────
+
+function saveGistSettings() {
+  const token = document.getElementById('gist-token-input').value.trim();
+  const id    = document.getElementById('gist-id-input').value.trim();
+  if (token) localStorage.setItem(KEY_GIST_TOKEN, token);
+  if (id)    localStorage.setItem(KEY_GIST_ID, id);
+  showToast('Gist settings saved');
+  syncFavs(true);
+}
+
+async function syncFavs(showFeedback = false) {
+  const token  = localStorage.getItem(KEY_GIST_TOKEN);
+  const gistId = localStorage.getItem(KEY_GIST_ID);
+  if (!token || !gistId) return;
+
+  const btn = document.getElementById('gist-sync-btn');
+  if (btn) btn.textContent = '…';
+
+  try {
+    // First fetch remote to see if it's newer
+    const getRes = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!getRes.ok) throw new Error('Gist fetch failed: ' + getRes.status);
+    const gistData = await getRes.json();
+    const remoteRaw = gistData.files?.['edesia-favourites.json']?.content || '[]';
+    const remoteFavs = JSON.parse(remoteRaw);
+
+    // Merge: remote is source of truth on load; local wins on write
+    // Strategy: if remote has more items, use remote; else push local up
+    if (remoteFavs.length > favs.length) {
+      favs = remoteFavs;
+      localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
+      renderFavs();
+      if (showFeedback) showToast('Favourites synced from Gist');
+    } else {
+      // Push local up to Gist
+      await pushFavsToGist(token, gistId);
+      if (showFeedback) showToast('Favourites saved to Gist');
+    }
+  } catch (err) {
+    if (showFeedback) showToast('Gist sync failed: ' + (err.message || 'Unknown'), true);
+  } finally {
+    if (btn) btn.textContent = '↻';
+  }
+}
+
+async function pushFavsToGist(token, gistId) {
+  await fetch(`https://api.github.com/gists/${gistId}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `token ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      files: { 'edesia-favourites.json': { content: JSON.stringify(favs, null, 2) } }
+    })
+  });
 }
 
 // ─── FITBIT / TARGETS / API KEY ──────────────────────────────────────────────
@@ -1401,6 +1476,7 @@ function saveEdit() {
   } else {
     favs[editIndex] = { ...favs[editIndex], ...updated };
     localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
+    syncFavs();
   }
   closeEditModal();
   renderAll();
@@ -1766,6 +1842,8 @@ function scheduleMidnightReset() {
 function appBoot() {
   init();
   scheduleMidnightReset();
+  // Silently sync favourites from Gist on startup
+  syncFavs(false);
 }
 
 // Patch pin unlock to boot app on first successful unlock
