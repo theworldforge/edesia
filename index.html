@@ -1380,15 +1380,15 @@ function deleteFav(i) {
 
 // ─── GIST SYNC ────────────────────────────────────────────────────────────────
 
-// ─── GIST SYNC ────────────────────────────────────────────────────────────────
-
 function saveGistSettings() {
   const token = document.getElementById('gist-token-input').value.trim();
   const id    = document.getElementById('gist-id-input').value.trim();
-  if (token) localStorage.setItem(KEY_GIST_TOKEN, token);
-  if (id)    localStorage.setItem(KEY_GIST_ID, id);
-  showToast('Gist settings saved');
-  syncAll(true);
+  if (!token || !id) { showToast('Please enter both token and Gist ID', true); return; }
+  localStorage.setItem(KEY_GIST_TOKEN, token);
+  localStorage.setItem(KEY_GIST_ID, id);
+  showToast('Gist settings saved — syncing…');
+  // Small delay to let localStorage settle before fetching
+  setTimeout(() => syncAll(true), 500);
 }
 
 // Debounced sync — batches rapid changes into one push after 2.5 seconds
@@ -1537,7 +1537,8 @@ async function syncAll(showFeedback = false) {
 
   } catch (err) {
     console.error('Sync error:', err);
-    showToast('Sync failed: ' + (err.message || 'Unknown'), true);
+    const msg = err.message || 'Unknown error';
+    showToast('Sync failed: ' + (msg.length > 60 ? msg.slice(0,60) + '…' : msg), true);
   } finally {
     if (btn) btn.textContent = '↻';
   }
