@@ -1440,6 +1440,10 @@ function confirmReset() {
     localStorage.removeItem(KEY_BURN);
     localStorage.removeItem(KEY_DELETED);
     localStorage.removeItem(STORAGE_PREFIX + 'planned');
+    // Push empty state to Gist immediately so sync can't pull old data back
+    const token  = localStorage.getItem(KEY_GIST_TOKEN);
+    const gistId = localStorage.getItem(KEY_GIST_ID);
+    if (token && gistId) pushToGist(token, gistId).catch(() => {});
     document.getElementById('fitbit-burn').value = '';
     renderAll();
     showToast('Day reset');
@@ -2108,6 +2112,9 @@ function scheduleMidnightReset() {
     localStorage.removeItem(KEY_BURN);
     localStorage.removeItem(KEY_DELETED);
     localStorage.removeItem(STORAGE_PREFIX + 'planned');
+    const _t = localStorage.getItem(KEY_GIST_TOKEN);
+    const _g = localStorage.getItem(KEY_GIST_ID);
+    if (_t && _g) pushToGist(_t, _g).catch(() => {});
     document.getElementById('fitbit-burn').value = '';
     renderAll();
     showToast('New day — log reset');
