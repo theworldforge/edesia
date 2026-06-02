@@ -11,6 +11,8 @@
 <title>Paul's Daily Tracker</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="shortcut icon" href="icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1298,6 +1300,7 @@ async function pushToGist(token, gistId) {
     planned: planned,
     deleted: [...deleted],
     date:    todayStr(),
+    resetAt: localStorage.getItem('pt_resetAt') || '0',
   };
   const res = await fetch(`https://api.github.com/gists/${gistId}`, {
     method: 'PATCH',
@@ -1350,39 +1353,53 @@ async function syncAll(showFeedback = false) {
       const today = todayStr();
       if (remotePayload.date === today) {
 
-        // Merge tombstone lists first
-        const remoteDeleted = new Set(remotePayload.deleted || []);
-        deleted = new Set([...deleted, ...remoteDeleted]);
-        localStorage.setItem(KEY_DELETED, JSON.stringify([...deleted]));
+        // ── Reset timestamp check ──
+        const localResetAt  = parseInt(localStorage.getItem('pt_resetAt') || '0');
+        const remoteResetAt = parseInt(remotePayload.resetAt || '0');
 
-        // Remove any local entries that are in the tombstone
-        log = log.filter(e => !e.id || !deleted.has(e.id));
-
-        // Merge log entries by ID — only add remote entries not in tombstone
-        const remoteLog = remotePayload.log || [];
-        const localIds  = new Set(log.map(e => e.id).filter(Boolean));
-        remoteLog.forEach(re => {
-          if (re.id && !localIds.has(re.id) && !deleted.has(re.id)) log.push(re);
-        });
-
-        // Sort by time
-        log.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
-        localStorage.setItem(KEY_LOG, JSON.stringify(log));
-
-        // Planned: merge by name
-        const remotePlanned = remotePayload.planned || [];
-        remotePlanned.forEach(rp => {
-          if (!planned.find(lp => lp.name === rp.name)) planned.push(rp);
-        });
-        savePlanned();
-
-        // Burn: use whichever is higher
-        const remoteBurn = remotePayload.burn || 0;
-        if (remoteBurn > burn) {
-          burn = remoteBurn;
-          localStorage.setItem(KEY_BURN, burn);
+        if (remoteResetAt > localResetAt) {
+          // Remote was reset more recently — wipe local and adopt remote state
+          log     = remotePayload.log     || [];
+          burn    = remotePayload.burn    || 0;
+          planned = remotePayload.planned || [];
+          deleted = new Set(remotePayload.deleted || []);
+          localStorage.setItem(KEY_LOG,     JSON.stringify(log));
+          localStorage.setItem(KEY_BURN,    burn);
+          localStorage.setItem(KEY_DELETED, JSON.stringify([...deleted]));
+          localStorage.setItem('pt_resetAt', String(remoteResetAt));
+          savePlanned();
           const burnEl = document.getElementById('fitbit-burn');
-          if (burnEl) burnEl.value = burn;
+          if (burnEl) burnEl.value = burn || '';
+        } else {
+          // Normal merge path
+          const remoteDeleted = new Set(remotePayload.deleted || []);
+          deleted = new Set([...deleted, ...remoteDeleted]);
+          localStorage.setItem(KEY_DELETED, JSON.stringify([...deleted]));
+
+          log = log.filter(e => !e.id || !deleted.has(e.id));
+
+          const remoteLog = remotePayload.log || [];
+          const localIds  = new Set(log.map(e => e.id).filter(Boolean));
+          remoteLog.forEach(re => {
+            if (re.id && !localIds.has(re.id) && !deleted.has(re.id)) log.push(re);
+          });
+
+          log.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+          localStorage.setItem(KEY_LOG, JSON.stringify(log));
+
+          const remotePlanned = remotePayload.planned || [];
+          remotePlanned.forEach(rp => {
+            if (!planned.find(lp => lp.name === rp.name)) planned.push(rp);
+          });
+          savePlanned();
+
+          const remoteBurn = remotePayload.burn || 0;
+          if (remoteBurn > burn) {
+            burn = remoteBurn;
+            localStorage.setItem(KEY_BURN, burn);
+            const burnEl = document.getElementById('fitbit-burn');
+            if (burnEl) burnEl.value = burn;
+          }
         }
       }
     }
@@ -1435,12 +1452,13 @@ function saveApiKey() {
 
 function confirmReset() {
   if (confirm("Reset today's log? This cannot be undone.")) {
+    const resetAt = String(Date.now());
     log = []; burn = 0; planned = []; deleted = new Set();
     localStorage.removeItem(KEY_LOG);
     localStorage.removeItem(KEY_BURN);
     localStorage.removeItem(KEY_DELETED);
     localStorage.removeItem(STORAGE_PREFIX + 'planned');
-    // Push empty state to Gist immediately so sync can't pull old data back
+    localStorage.setItem(STORAGE_PREFIX + 'resetAt', resetAt);
     const token  = localStorage.getItem(KEY_GIST_TOKEN);
     const gistId = localStorage.getItem(KEY_GIST_ID);
     if (token && gistId) pushToGist(token, gistId).catch(() => {});
@@ -2107,7 +2125,9 @@ function scheduleMidnightReset() {
   midnight.setHours(24, 0, 0, 0);
   setTimeout(() => {
     log = []; burn = 0; planned = []; deleted = new Set();
+    const resetAt = String(Date.now());
     localStorage.setItem(KEY_DATE, todayStr());
+    localStorage.setItem(STORAGE_PREFIX + 'resetAt', resetAt);
     localStorage.removeItem(KEY_LOG);
     localStorage.removeItem(KEY_BURN);
     localStorage.removeItem(KEY_DELETED);
