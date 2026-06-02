@@ -34,14 +34,21 @@
     --display: 'Barlow Condensed', sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
-  body { background: var(--bg); color: var(--text); font-family: var(--mono); min-height: 100vh; padding: 0 0 calc(160px + env(safe-area-inset-bottom)) 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  html { height: 100%; }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--mono);
+    height: 100%; display: flex; flex-direction: column; overflow: hidden;
+  }
+  #app-scroll {
+    flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding-bottom: 24px;
+  }
 
-  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 16px 12px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 16px 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
   header h1 { font-family: var(--display); font-weight: 800; font-size: 1.3rem; letter-spacing: 0.05em; text-transform: uppercase; }
   .date-tag { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
 
-  .api-key-row { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .api-key-row { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
   .api-key-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--mono); font-size: 0.7rem; padding: 6px 10px; }
   .api-key-input:focus { outline: none; border-color: var(--green); }
   .api-key-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; }
@@ -123,7 +130,7 @@
   .fav-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.75rem; padding: 0 0 0 4px; line-height: 1; }
   .fav-del:hover { color: var(--red); }
 
-  .input-area { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 10px 14px calc(14px + env(safe-area-inset-bottom)); z-index: 100; }
+  .input-area { background: var(--surface); border-top: 1px solid var(--border); padding: 10px 14px calc(14px + env(safe-area-inset-bottom)); flex-shrink: 0; }
   .input-name { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 0.75rem; padding: 7px 12px; margin-bottom: 6px; }
   .input-name:focus { outline: none; border-color: var(--amber); }
   .input-name::placeholder { color: var(--muted); }
@@ -387,6 +394,8 @@
   <button class="btn-sm" id="gist-sync-btn" onclick="syncFavs(true)" title="Sync now" style="flex-shrink:0;">↻</button>
 </div>
 
+<div id="app-scroll">
+
 <!-- Budget Panel -->
 <div class="budget-panel">
   <div class="budget-row">
@@ -509,7 +518,9 @@
   <div class="empty-state">Nothing logged yet.</div>
 </div>
 
-<!-- Fixed Input -->
+</div><!-- /app-scroll -->
+
+<!-- Input Area (stays at bottom) -->
 <div class="input-area">
   <input type="text" class="input-name" id="food-name" placeholder="Name (optional) — e.g. Breakfast chocolate smoothie">
   <div class="input-row">
@@ -1190,7 +1201,9 @@ function confirmLog() {
   showToast('Added: ' + pendingEntry.name);
   // Scroll to log so user can see the new entry
   setTimeout(() => {
-    document.getElementById('log-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const logEl = document.getElementById('log-list');
+    const scroller = document.getElementById('app-scroll');
+    if (logEl && scroller) scroller.scrollTop = logEl.offsetTop - 60;
   }, 150);
 }
 
