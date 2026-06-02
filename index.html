@@ -1220,6 +1220,7 @@ function confirmLog() {
 
   log.push(entry);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
+  syncAll();
   document.getElementById('food-input').value = '';
   document.getElementById('food-input').style.height = 'auto';
   document.getElementById('food-name').value = '';
@@ -1237,6 +1238,7 @@ function confirmLog() {
 function removeEntry(i) {
   log.splice(i, 1);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
+  syncAll();
   renderAll();
 }
 
@@ -1268,53 +1270,25 @@ function deleteFav(i) {
 
 // ─── GIST SYNC ────────────────────────────────────────────────────────────────
 
+// ─── GIST SYNC ────────────────────────────────────────────────────────────────
+
 function saveGistSettings() {
   const token = document.getElementById('gist-token-input').value.trim();
   const id    = document.getElementById('gist-id-input').value.trim();
   if (token) localStorage.setItem(KEY_GIST_TOKEN, token);
   if (id)    localStorage.setItem(KEY_GIST_ID, id);
   showToast('Gist settings saved');
-  syncFavs(true);
+  syncAll(true);
 }
 
-async function syncFavs(showFeedback = false) {
-  const token  = localStorage.getItem(KEY_GIST_TOKEN);
-  const gistId = localStorage.getItem(KEY_GIST_ID);
-  if (!token || !gistId) return;
-
-  const btn = document.getElementById('gist-sync-btn');
-  if (btn) btn.textContent = '…';
-
-  try {
-    // First fetch remote to see if it's newer
-    const getRes = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    if (!getRes.ok) throw new Error('Gist fetch failed: ' + getRes.status);
-    const gistData = await getRes.json();
-    const remoteRaw = gistData.files?.['edesia-favourites.json']?.content || '[]';
-    const remoteFavs = JSON.parse(remoteRaw);
-
-    // Merge: remote is source of truth on load; local wins on write
-    // Strategy: if remote has more items, use remote; else push local up
-    if (remoteFavs.length > favs.length) {
-      favs = remoteFavs;
-      localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
-      renderFavs();
-      if (showFeedback) showToast('Favourites synced from Gist');
-    } else {
-      // Push local up to Gist
-      await pushFavsToGist(token, gistId);
-      if (showFeedback) showToast('Favourites saved to Gist');
-    }
-  } catch (err) {
-    if (showFeedback) showToast('Gist sync failed: ' + (err.message || 'Unknown'), true);
-  } finally {
-    if (btn) btn.textContent = '↻';
-  }
-}
-
-async function pushFavsToGist(token, gistId) {
+// Push everything to Gist in one PATCH call
+async function pushToGist(token, gistId) {
+  const payload = {
+    log:     log,
+    burn:    burn,
+    planned: planned,
+    date:    todayStr(),
+  };
   await fetch(`https://api.github.com/gists/${gistId}`, {
     method: 'PATCH',
     headers: {
@@ -1323,9 +1297,85 @@ async function pushFavsToGist(token, gistId) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      files: { 'edesia-favourites.json': { content: JSON.stringify(favs, null, 2) } }
+      files: {
+        'edesia-favourites.json': { content: JSON.stringify(favs, null, 2) },
+        'edesia-log.json':        { content: JSON.stringify(payload, null, 2) }
+      }
     })
   });
+}
+
+// Pull everything from Gist and merge
+async function syncAll(showFeedback = false) {
+  const token  = localStorage.getItem(KEY_GIST_TOKEN);
+  const gistId = localStorage.getItem(KEY_GIST_ID);
+  if (!token || !gistId) return;
+
+  const btn = document.getElementById('gist-sync-btn');
+  if (btn) btn.textContent = '…';
+
+  try {
+    const getRes = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!getRes.ok) throw new Error('Gist fetch failed: ' + getRes.status);
+    const gistData = await getRes.json();
+
+    // ── Favourites ──
+    const remoteFavsRaw = gistData.files?.['edesia-favourites.json']?.content || '[]';
+    const remoteFavs = JSON.parse(remoteFavsRaw);
+    if (remoteFavs.length > favs.length) {
+      favs = remoteFavs;
+      localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
+    }
+
+    // ── Daily log, burn, planned ──
+    const remoteLogRaw = gistData.files?.['edesia-log.json']?.content || null;
+    if (remoteLogRaw) {
+      const remotePayload = JSON.parse(remoteLogRaw);
+      const today = todayStr();
+
+      // Only pull log data if it's from today
+      if (remotePayload.date === today) {
+        // Use whichever has more entries (most complete)
+        if ((remotePayload.log || []).length > log.length) {
+          log = remotePayload.log || [];
+          localStorage.setItem(KEY_LOG, JSON.stringify(log));
+        }
+        // Planned: merge — add any remote items not already in local
+        const remotePlanned = remotePayload.planned || [];
+        remotePlanned.forEach(rp => {
+          if (!planned.find(lp => lp.name === rp.name)) {
+            planned.push(rp);
+          }
+        });
+        savePlanned();
+        // Burn: use whichever is higher (more recent Fitbit reading)
+        const remoteBurn = remotePayload.burn || 0;
+        if (remoteBurn > burn) {
+          burn = remoteBurn;
+          localStorage.setItem(KEY_BURN, burn);
+          const burnEl = document.getElementById('fitbit-burn');
+          if (burnEl) burnEl.value = burn;
+        }
+      }
+    }
+
+    // Push merged state back up
+    await pushToGist(token, gistId);
+    renderAll();
+    if (showFeedback) showToast('Synced ✓');
+
+  } catch (err) {
+    if (showFeedback) showToast('Sync failed: ' + (err.message || 'Unknown'), true);
+  } finally {
+    if (btn) btn.textContent = '↻';
+  }
+}
+
+// Keep syncFavs as an alias so existing calls still work
+async function syncFavs(showFeedback = false) {
+  await syncAll(showFeedback);
 }
 
 // ─── FITBIT / TARGETS / API KEY ──────────────────────────────────────────────
@@ -1333,6 +1383,7 @@ async function pushFavsToGist(token, gistId) {
 function updateBurn() {
   burn = parseInt(document.getElementById('fitbit-burn').value) || 0;
   localStorage.setItem(KEY_BURN, burn);
+  syncAll();
   renderAll();
 }
 
@@ -1526,6 +1577,7 @@ function saveEdit() {
   if (editTarget === 'log') {
     log[editIndex] = { ...log[editIndex], ...updated };
     localStorage.setItem(KEY_LOG, JSON.stringify(log));
+    syncAll();
   } else {
     favs[editIndex] = { ...favs[editIndex], ...updated };
     localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
@@ -1731,7 +1783,6 @@ async function addPlannedFood() {
 }
 
 function eatPlanned(i) {
-  // Move from planned to actual log
   const item = planned[i];
   log.push({
     ...item,
@@ -1740,6 +1791,7 @@ function eatPlanned(i) {
   planned.splice(i, 1);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
   savePlanned();
+  syncAll();
   renderAll();
   showToast('Logged: ' + item.name);
 }
@@ -1747,6 +1799,7 @@ function eatPlanned(i) {
 function deletePlanned(i) {
   planned.splice(i, 1);
   savePlanned();
+  syncAll();
   renderAll();
 }
 
@@ -2008,6 +2061,7 @@ function logRecipe() {
 
   log.push(entry);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
+  syncAll();
   closeRecipeModal();
   document.getElementById('food-name').value = '';
   renderAll();
@@ -2036,8 +2090,7 @@ function scheduleMidnightReset() {
 function appBoot() {
   init();
   scheduleMidnightReset();
-  // Silently sync favourites from Gist on startup
-  syncFavs(false);
+  syncAll(false);
 }
 
 // Patch pin unlock to boot app on first successful unlock
