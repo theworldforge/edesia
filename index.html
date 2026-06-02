@@ -221,6 +221,33 @@
   .plan-snack-name { font-size: 0.76rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
   .plan-snack-why { font-size: 0.6rem; color: var(--muted); }
 
+  /* PLANNED FOOD LIST */
+  .planned-entry {
+    background: var(--amber-dim); border: 1px solid var(--amber);
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .planned-entry-info { flex: 1; min-width: 0; }
+  .planned-entry-name { font-size: 0.78rem; font-weight: 600; color: var(--amber); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .planned-entry-macros { font-size: 0.62rem; color: var(--muted); margin-top: 2px; }
+  .planned-entry-kcal { font-family: var(--display); font-size: 1.2rem; font-weight: 700; color: var(--amber); flex-shrink: 0; }
+  .btn-plan-eat { background: var(--green); border: none; border-radius: 6px; color: #000; cursor: pointer; font-family: var(--display); font-size: 0.7rem; font-weight: 700; padding: 5px 8px; text-transform: uppercase; flex-shrink: 0; }
+  .btn-plan-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; padding: 4px; flex-shrink: 0; }
+  .btn-plan-del:hover { color: var(--red); }
+
+  /* PROJECTED ROW in budget panel */
+  .projected-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; background: var(--amber-dim);
+    border: 1px solid var(--amber); border-radius: 8px;
+    margin-top: 8px; font-size: 0.62rem;
+  }
+  .projected-row-label { color: var(--amber); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.58rem; flex-shrink: 0; }
+  .projected-chip { background: var(--surface2); border-radius: 4px; padding: 2px 7px; font-size: 0.62rem; }
+  .projected-chip.over  { color: var(--red); }
+  .projected-chip.good  { color: var(--green); }
+  .projected-chip.warn  { color: var(--amber); }
+
   /* CAMERA */
   .btn-camera {
     background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
@@ -442,6 +469,13 @@
     </div>
     <button class="reset-btn" onclick="confirmReset()">Reset day</button>
   </div>
+  <div class="projected-row" id="projected-row" style="display:none;">
+    <span class="projected-row-label">📅 incl. planned</span>
+    <span id="proj-kcal" class="projected-chip">—</span>
+    <span id="proj-prot" class="projected-chip">—</span>
+    <span id="proj-carbs" class="projected-chip">—</span>
+    <span id="proj-fat" class="projected-chip">—</span>
+  </div>
   <button class="btn-recommend" id="rec-btn" onclick="getRecommendations()">
     <span id="rec-btn-icon">💡</span> What should I eat?
   </button>
@@ -466,28 +500,15 @@
 <!-- Plan Ahead Panel -->
 <div class="plan-panel" id="plan-panel">
   <div class="plan-header">
-    <span>🍽 Dinner Planner</span>
+    <span>🍽 Planned Foods</span>
     <button class="rec-close" onclick="togglePlanPanel()">✕</button>
   </div>
   <div class="plan-input-row">
-    <input type="text" class="plan-input" id="plan-input" placeholder="Describe your planned dinner…">
-    <button class="btn-plan-calc" id="plan-btn" onclick="calcPlan()">Calculate</button>
+    <input type="text" class="plan-input" id="plan-input" placeholder="Describe something you plan to eat…">
+    <button class="btn-plan-calc" id="plan-btn" onclick="addPlannedFood()">Add</button>
   </div>
-  <div class="plan-results" id="plan-results">
-    <div style="font-size:0.6rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;">Planned dinner macros</div>
-    <div class="modal-macros" style="margin-bottom:10px;">
-      <div class="modal-macro"><div class="modal-macro-val kcal" id="pl-kcal">0</div><div class="modal-macro-lbl">Kcal</div></div>
-      <div class="modal-macro"><div class="modal-macro-val prot" id="pl-prot">0g</div><div class="modal-macro-lbl">Protein</div></div>
-      <div class="modal-macro"><div class="modal-macro-val carbs" id="pl-carbs">0g</div><div class="modal-macro-lbl">Carbs</div></div>
-      <div class="modal-macro"><div class="modal-macro-val fat" id="pl-fat">0g</div><div class="modal-macro-lbl">Fat</div></div>
-    </div>
-    <div class="plan-gap-label">Projected end-of-day (eaten + dinner)</div>
-    <div class="plan-projected" id="plan-projected"></div>
-    <div class="plan-gap-label" style="margin-top:10px;">Gap to fill with snacks before dinner</div>
-    <div class="plan-gap-chips" id="plan-gap-chips"></div>
-    <div class="plan-snacks-label">Suggested snacks</div>
-    <div id="plan-snacks"></div>
-  </div>
+  <div id="plan-list-empty" style="font-size:0.7rem;color:var(--muted);padding:8px 0;">No planned foods yet. Add something above.</div>
+  <div id="plan-list"></div>
 </div>
 
 <!-- Fitbit -->
@@ -512,6 +533,9 @@
 
 <div class="section-header">Favourites</div>
 <div class="favs-grid" id="favs-grid"></div>
+
+<div class="section-header" id="planned-section-header" style="display:none;">Planned <span class="log-count" id="planned-count"></span></div>
+<div class="log-list" id="planned-list" style="display:none;"></div>
 
 <div class="section-header">Today's Log <span class="log-count" id="log-count"></span></div>
 <div class="log-list" id="log-list">
@@ -855,12 +879,14 @@ function init() {
     localStorage.setItem(KEY_DATE, today);
     localStorage.removeItem(KEY_LOG);
     localStorage.removeItem(KEY_BURN);
+    localStorage.removeItem(STORAGE_PREFIX + 'planned');
   }
 
   try { log = JSON.parse(localStorage.getItem(KEY_LOG)) || []; } catch { log = []; }
   try { favs = JSON.parse(localStorage.getItem(KEY_FAVS)) || []; } catch { favs = []; }
   try { targets = { ...DEFAULT_TARGETS, ...JSON.parse(localStorage.getItem(KEY_TARGETS)) }; } catch {}
   burn = parseInt(localStorage.getItem(KEY_BURN)) || 0;
+  loadPlanned();
 
   const savedKey = localStorage.getItem(KEY_API);
   if (savedKey) document.getElementById('api-key-input').value = savedKey;
@@ -956,6 +982,7 @@ function renderAll() {
   renderMicroGrid(t);
   renderLog();
   renderFavs();
+  renderPlanned();
 }
 
 function renderCard(cardId, valId, targetId, rem, target) {
@@ -1330,9 +1357,10 @@ function saveApiKey() {
 
 function confirmReset() {
   if (confirm("Reset today's log? This cannot be undone.")) {
-    log = []; burn = 0;
+    log = []; burn = 0; planned = [];
     localStorage.removeItem(KEY_LOG);
     localStorage.removeItem(KEY_BURN);
+    localStorage.removeItem(STORAGE_PREFIX + 'planned');
     document.getElementById('fitbit-burn').value = '';
     renderAll();
     showToast('Day reset');
@@ -1633,6 +1661,146 @@ Return ONLY valid JSON: {"snacks":[{"name":"...","why":"one sentence","kcal":num
   }
 }
 
+// ─── PLAN AHEAD — MULTI-ITEM PLANNED LIST ────────────────────────────────────
+
+let planned = []; // array of {name, kcal, prot, carbs, fat, micro}
+
+function togglePlanPanel() {
+  document.getElementById('plan-panel').classList.toggle('open');
+}
+
+function savePlanned() {
+  localStorage.setItem(STORAGE_PREFIX + 'planned', JSON.stringify(planned));
+}
+
+function loadPlanned() {
+  try { planned = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'planned')) || []; } catch { planned = []; }
+}
+
+async function addPlannedFood() {
+  const text = document.getElementById('plan-input').value.trim();
+  if (!text) return;
+  const apiKey = localStorage.getItem(KEY_API);
+  if (!apiKey) { showToast('Please save your API key first', true); return; }
+
+  const btn = document.getElementById('plan-btn');
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 400,
+        system: `You are a nutrition calculator. Return ONLY valid JSON, no markdown, no explanation:
+{"name":"string (max 40 chars)","kcal":number,"prot":number,"carbs":number,"fat":number,"micro":{"mg":number,"ca":number,"fe":number,"vd":number,"k2":number,"zn":number,"k":number,"vc":number,"b12":number}}`,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.content.find(b => b.type === 'text')?.text || '';
+    const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    planned.push({
+      name:  parsed.name,
+      kcal:  Math.round(parsed.kcal),
+      prot:  Math.round(parsed.prot * 10) / 10,
+      carbs: Math.round(parsed.carbs * 10) / 10,
+      fat:   Math.round(parsed.fat * 10) / 10,
+      micro: parsed.micro || {},
+    });
+    savePlanned();
+    document.getElementById('plan-input').value = '';
+    renderAll();
+    showToast('Added to plan: ' + parsed.name);
+
+  } catch (err) {
+    showToast('Error: ' + (err.message || 'Unknown'), true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Add';
+  }
+}
+
+function eatPlanned(i) {
+  // Move from planned to actual log
+  const item = planned[i];
+  log.push({
+    ...item,
+    time: new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }),
+  });
+  planned.splice(i, 1);
+  localStorage.setItem(KEY_LOG, JSON.stringify(log));
+  savePlanned();
+  renderAll();
+  showToast('Logged: ' + item.name);
+}
+
+function deletePlanned(i) {
+  planned.splice(i, 1);
+  savePlanned();
+  renderAll();
+}
+
+function renderPlanned() {
+  const listEl    = document.getElementById('planned-list');
+  const headerEl  = document.getElementById('planned-section-header');
+  const countEl   = document.getElementById('planned-count');
+  const projRow   = document.getElementById('projected-row');
+
+  if (!planned.length) {
+    listEl.style.display   = 'none';
+    headerEl.style.display = 'none';
+    projRow.style.display  = 'none';
+    return;
+  }
+
+  headerEl.style.display = 'flex';
+  listEl.style.display   = 'flex';
+  listEl.style.flexDirection = 'column';
+  listEl.style.gap = '6px';
+  listEl.style.padding = '0 16px';
+  countEl.textContent = `${planned.length} item${planned.length !== 1 ? 's' : ''}`;
+
+  listEl.innerHTML = planned.map((p, i) => `
+    <div class="planned-entry">
+      <div class="planned-entry-info">
+        <div class="planned-entry-name">${escHtml(p.name)}</div>
+        <div class="planned-entry-macros">${p.prot}g P · ${p.carbs}g C · ${p.fat}g F</div>
+      </div>
+      <span class="planned-entry-kcal">${p.kcal}</span>
+      <button class="btn-plan-eat" onclick="eatPlanned(${i})">✓ Eaten</button>
+      <button class="btn-plan-del" onclick="deletePlanned(${i})">✕</button>
+    </div>`).join('');
+
+  // Projected totals row in budget panel
+  const t = totals();
+  const kcalTarget = getEatingTarget();
+  const projKcal  = t.kcal  + planned.reduce((s, p) => s + p.kcal,  0);
+  const projProt  = t.prot  + planned.reduce((s, p) => s + p.prot,  0);
+  const projCarbs = t.carbs + planned.reduce((s, p) => s + p.carbs, 0);
+  const projFat   = t.fat   + planned.reduce((s, p) => s + p.fat,   0);
+
+  const chipCls = (val, target) => val > target * 1.05 ? 'over' : val > target * 0.85 ? 'good' : 'warn';
+  document.getElementById('proj-kcal').textContent  = `${Math.round(projKcal)} kcal`;
+  document.getElementById('proj-prot').textContent  = `${Math.round(projProt)}g P`;
+  document.getElementById('proj-carbs').textContent = `${Math.round(projCarbs)}g C`;
+  document.getElementById('proj-fat').textContent   = `${Math.round(projFat)}g F`;
+  document.getElementById('proj-kcal').className  = `projected-chip ${chipCls(projKcal, kcalTarget)}`;
+  document.getElementById('proj-prot').className  = `projected-chip ${chipCls(projProt, targets.prot)}`;
+  document.getElementById('proj-carbs').className = `projected-chip ${chipCls(projCarbs, targets.carbs)}`;
+  document.getElementById('proj-fat').className   = `projected-chip ${chipCls(projFat, targets.fat)}`;
+  projRow.style.display = 'flex';
+}
+
 // ─── RECIPE PHOTO SCANNER ────────────────────────────────────────────────────
 
 let recipeEntry = null;
@@ -1850,10 +2018,11 @@ function scheduleMidnightReset() {
   const now = new Date(), midnight = new Date(now);
   midnight.setHours(24, 0, 0, 0);
   setTimeout(() => {
-    log = []; burn = 0;
+    log = []; burn = 0; planned = [];
     localStorage.setItem(KEY_DATE, todayStr());
     localStorage.removeItem(KEY_LOG);
     localStorage.removeItem(KEY_BURN);
+    localStorage.removeItem(STORAGE_PREFIX + 'planned');
     document.getElementById('fitbit-burn').value = '';
     renderAll();
     showToast('New day — log reset');
