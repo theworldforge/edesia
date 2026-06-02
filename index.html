@@ -548,14 +548,56 @@
 
 <!-- Input Area (stays at bottom) -->
 <div class="input-area">
-  <input type="text" class="input-name" id="food-name" placeholder="Name (optional) — e.g. Breakfast chocolate smoothie">
-  <div class="input-row">
-    <textarea class="food-input" id="food-input" placeholder="Describe what you ate — e.g. 225g banana, 200g skyr, 300ml oat milk, 30g whey, 2 tbsp cacao…"
-      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
-      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();logFood();}"></textarea>
-    <button class="btn-camera" onclick="document.getElementById('recipe-photo-input').click()" title="Photo a recipe">📷</button>
-    <button class="btn-log" id="log-btn" onclick="logFood()">Log</button>
+  <!-- Mode toggle -->
+  <div style="display:flex;gap:6px;margin-bottom:8px;">
+    <button id="mode-ai-btn" onclick="setInputMode('ai')"
+      style="flex:1;padding:5px;border-radius:6px;border:1px solid var(--green);background:var(--green);color:#000;font-family:var(--display);font-size:0.72rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;">
+      🤖 AI Describe
+    </button>
+    <button id="mode-manual-btn" onclick="setInputMode('manual')"
+      style="flex:1;padding:5px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:var(--display);font-size:0.72rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;">
+      ✏️ Enter Values
+    </button>
   </div>
+
+  <!-- AI mode -->
+  <div id="input-ai-mode">
+    <input type="text" class="input-name" id="food-name" placeholder="Name (optional) — e.g. Breakfast chocolate smoothie">
+    <div class="input-row">
+      <textarea class="food-input" id="food-input" placeholder="Describe what you ate — e.g. 225g banana, 200g skyr, 300ml oat milk, 30g whey, 2 tbsp cacao…"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();logFood();}"></textarea>
+      <button class="btn-camera" onclick="document.getElementById('recipe-photo-input').click()" title="Photo a recipe">📷</button>
+      <button class="btn-log" id="log-btn" onclick="logFood()">Log</button>
+    </div>
+  </div>
+
+  <!-- Manual mode -->
+  <div id="input-manual-mode" style="display:none;">
+    <input type="text" class="input-name" id="manual-name" placeholder="Food name (required)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Kcal</div>
+        <input type="number" class="edit-macro-field" id="manual-kcal" placeholder="0" min="0" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Protein (g)</div>
+        <input type="number" class="edit-macro-field" id="manual-prot" placeholder="0" min="0" step="0.1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Carbs (g)</div>
+        <input type="number" class="edit-macro-field" id="manual-carbs" placeholder="0" min="0" step="0.1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Fat (g)</div>
+        <input type="number" class="edit-macro-field" id="manual-fat" placeholder="0" min="0" step="0.1" style="width:100%;">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-log" onclick="logManual()" style="flex:1;">Log</button>
+    </div>
+  </div>
+
   <div class="input-hint">Enter to log · 📷 to scan a recipe</div>
 </div>
 <input type="file" id="recipe-photo-input" accept="image/*" capture="environment" style="display:none;" onchange="handleRecipePhoto(event)">
@@ -718,6 +760,12 @@ function pinStart() {
     document.getElementById('pin-label').textContent = 'Create a 4-digit PIN';
     document.getElementById('pin-change-btn').style.display = 'none';
   } else {
+    // Check if already unlocked this session
+    if (localStorage.getItem('pt_unlocked') === '1') {
+      document.getElementById('pin-screen').classList.add('hidden');
+      if (!appBooted) { appBooted = true; appBoot(); }
+      return;
+    }
     pinMode = 'unlock';
     document.getElementById('pin-label').textContent = 'Enter PIN';
     document.getElementById('pin-change-btn').style.display = 'block';
@@ -729,6 +777,7 @@ function pinStart() {
 }
 
 function lockApp() {
+  localStorage.removeItem('pt_unlocked');
   pinMode = 'unlock';
   pinBuffer = '';
   pinTemp = '';
@@ -782,6 +831,7 @@ function pinSubmit() {
 
   if (pinMode === 'unlock') {
     if (pinBuffer === stored) {
+      localStorage.setItem('pt_unlocked', '1');
       document.getElementById('pin-screen').classList.add('hidden');
       document.getElementById('pin-error').textContent = '';
     } else {
@@ -800,6 +850,7 @@ function pinSubmit() {
   } else if (pinMode === 'setup-confirm') {
     if (pinBuffer === pinTemp) {
       localStorage.setItem(KEY_PIN, pinBuffer);
+      localStorage.setItem('pt_unlocked', '1');
       document.getElementById('pin-screen').classList.add('hidden');
       showToast('PIN set');
     } else {
@@ -1055,6 +1106,54 @@ function renderFavs() {
       <button class="fav-del" onclick="event.stopPropagation();openEditFav(${i})" title="Edit">✏️</button>
       <button class="fav-del" onclick="event.stopPropagation();deleteFav(${i})">✕</button>
     </div>`).join('');
+}
+
+// ─── INPUT MODE TOGGLE ───────────────────────────────────────────────────────
+
+function setInputMode(mode) {
+  const aiMode     = document.getElementById('input-ai-mode');
+  const manualMode = document.getElementById('input-manual-mode');
+  const aiBtn      = document.getElementById('mode-ai-btn');
+  const manBtn     = document.getElementById('mode-manual-btn');
+  if (mode === 'ai') {
+    aiMode.style.display     = 'block';
+    manualMode.style.display = 'none';
+    aiBtn.style.cssText      = 'flex:1;padding:5px;border-radius:6px;border:1px solid var(--green);background:var(--green);color:#000;font-family:var(--display);font-size:0.72rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;';
+    manBtn.style.cssText     = 'flex:1;padding:5px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:var(--display);font-size:0.72rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;';
+  } else {
+    aiMode.style.display     = 'none';
+    manualMode.style.display = 'block';
+    manBtn.style.cssText     = 'flex:1;padding:5px;border-radius:6px;border:1px solid var(--purple);background:var(--purple);color:#000;font-family:var(--display);font-size:0.72rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;';
+    aiBtn.style.cssText      = 'flex:1;padding:5px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:var(--display);font-size:0.72rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;';
+  }
+}
+
+function logManual() {
+  const name  = document.getElementById('manual-name').value.trim();
+  const kcal  = parseFloat(document.getElementById('manual-kcal').value)  || 0;
+  const prot  = parseFloat(document.getElementById('manual-prot').value)  || 0;
+  const carbs = parseFloat(document.getElementById('manual-carbs').value) || 0;
+  const fat   = parseFloat(document.getElementById('manual-fat').value)   || 0;
+
+  if (!name) { showToast('Please enter a food name', true); return; }
+  if (!kcal && !prot && !carbs && !fat) { showToast('Please enter at least one value', true); return; }
+
+  pendingEntry = {
+    name,
+    kcal:  Math.round(kcal),
+    prot:  Math.round(prot * 10) / 10,
+    carbs: Math.round(carbs * 10) / 10,
+    fat:   Math.round(fat * 10) / 10,
+    micro: {},
+    time:  new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }),
+  };
+  showModal(pendingEntry);
+
+  document.getElementById('manual-name').value  = '';
+  document.getElementById('manual-kcal').value  = '';
+  document.getElementById('manual-prot').value  = '';
+  document.getElementById('manual-carbs').value = '';
+  document.getElementById('manual-fat').value   = '';
 }
 
 // ─── FOOD LOGGING ────────────────────────────────────────────────────────────
