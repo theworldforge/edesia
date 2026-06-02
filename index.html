@@ -1459,7 +1459,7 @@ async function syncAll(showFeedback = false) {
 
   try {
     const getRes = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
     });
     if (!getRes.ok) throw new Error(`Gist fetch failed: ${getRes.status}`);
     const gistData = await getRes.json();
@@ -2298,7 +2298,7 @@ async function pullOnBoot() {
   if (!token || !gistId) { renderAll(); return; }
   try {
     const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
     });
     if (!res.ok) return;
     const gistData = await res.json();
