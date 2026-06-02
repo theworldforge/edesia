@@ -1289,7 +1289,7 @@ async function pushToGist(token, gistId) {
     planned: planned,
     date:    todayStr(),
   };
-  await fetch(`https://api.github.com/gists/${gistId}`, {
+  const res = await fetch(`https://api.github.com/gists/${gistId}`, {
     method: 'PATCH',
     headers: {
       'Authorization': `token ${token}`,
@@ -1303,6 +1303,10 @@ async function pushToGist(token, gistId) {
       }
     })
   });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Gist push failed ${res.status}: ${err}`);
+  }
 }
 
 // Pull everything from Gist and merge
@@ -1318,7 +1322,7 @@ async function syncAll(showFeedback = false) {
     const getRes = await fetch(`https://api.github.com/gists/${gistId}`, {
       headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
     });
-    if (!getRes.ok) throw new Error('Gist fetch failed: ' + getRes.status);
+    if (!getRes.ok) throw new Error(`Gist fetch failed: ${getRes.status}`);
     const gistData = await getRes.json();
 
     // ── Favourites ──
@@ -1330,27 +1334,20 @@ async function syncAll(showFeedback = false) {
     }
 
     // ── Daily log, burn, planned ──
-    const remoteLogRaw = gistData.files?.['edesia-log.json']?.content || null;
-    if (remoteLogRaw) {
-      const remotePayload = JSON.parse(remoteLogRaw);
+    const remoteLogFile = gistData.files?.['edesia-log.json'];
+    if (remoteLogFile && remoteLogFile.content) {
+      const remotePayload = JSON.parse(remoteLogFile.content);
       const today = todayStr();
-
-      // Only pull log data if it's from today
       if (remotePayload.date === today) {
-        // Use whichever has more entries (most complete)
         if ((remotePayload.log || []).length > log.length) {
           log = remotePayload.log || [];
           localStorage.setItem(KEY_LOG, JSON.stringify(log));
         }
-        // Planned: merge — add any remote items not already in local
         const remotePlanned = remotePayload.planned || [];
         remotePlanned.forEach(rp => {
-          if (!planned.find(lp => lp.name === rp.name)) {
-            planned.push(rp);
-          }
+          if (!planned.find(lp => lp.name === rp.name)) planned.push(rp);
         });
         savePlanned();
-        // Burn: use whichever is higher (more recent Fitbit reading)
         const remoteBurn = remotePayload.burn || 0;
         if (remoteBurn > burn) {
           burn = remoteBurn;
@@ -1361,19 +1358,20 @@ async function syncAll(showFeedback = false) {
       }
     }
 
-    // Push merged state back up
+    // Always push local state up (creates edesia-log.json if missing)
     await pushToGist(token, gistId);
     renderAll();
     if (showFeedback) showToast('Synced ✓');
 
   } catch (err) {
-    if (showFeedback) showToast('Sync failed: ' + (err.message || 'Unknown'), true);
+    console.error('Sync error:', err);
+    showToast('Sync failed: ' + (err.message || 'Unknown'), true);
   } finally {
     if (btn) btn.textContent = '↻';
   }
 }
 
-// Keep syncFavs as an alias so existing calls still work
+// Keep syncFavs as alias
 async function syncFavs(showFeedback = false) {
   await syncAll(showFeedback);
 }
