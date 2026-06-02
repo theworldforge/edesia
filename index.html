@@ -154,6 +154,64 @@
   .modal-micro-val { font-family: var(--display); font-size: 1rem; font-weight: 700; color: var(--teal); }
   .modal-micro-lbl { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
 
+  /* PORTION ADJUSTER */
+  .portion-row {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; margin-bottom: 6px;
+  }
+  .portion-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; }
+  .portion-sep { font-size: 0.62rem; color: var(--muted); flex-shrink: 0; }
+  .portion-input {
+    flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: var(--mono); font-size: 0.85rem; font-weight: 600;
+    padding: 5px 8px; text-align: center; min-width: 0;
+  }
+  .portion-input:focus { outline: none; border-color: var(--amber); }
+  .portion-unit {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--muted); font-family: var(--mono); font-size: 0.72rem; padding: 5px 4px;
+    flex-shrink: 0;
+  }
+  .portion-hint { font-size: 0.58rem; color: var(--muted); text-align: center; margin-bottom: 10px; }
+
+  /* EDIT MODAL */
+  .edit-field { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 0.8rem; padding: 8px 12px; margin-bottom: 8px; }
+  .edit-field:focus { outline: none; border-color: var(--amber); }
+  .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .edit-macro-field { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--mono); font-size: 0.8rem; padding: 7px 10px; width: 100%; }
+  .edit-macro-field:focus { outline: none; border-color: var(--amber); }
+  .edit-macro-lbl { font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+
+  /* PLAN AHEAD */
+  .plan-panel { background: var(--surface); border: 1px solid var(--amber); border-radius: 10px; margin: 12px 16px 0; padding: 16px; display: none; }
+  .plan-panel.open { display: block; }
+  .plan-header { font-family: var(--display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--amber); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .plan-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .plan-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 0.78rem; padding: 9px 12px; }
+  .plan-input:focus { outline: none; border-color: var(--amber); }
+  .plan-input::placeholder { color: var(--muted); }
+  .btn-plan-calc { background: var(--amber); border: none; border-radius: 8px; color: #000; cursor: pointer; font-family: var(--display); font-size: 0.8rem; font-weight: 700; padding: 9px 14px; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
+  .btn-plan-calc:disabled { opacity: 0.5; cursor: not-allowed; }
+  .plan-results { display: none; }
+  .plan-results.open { display: block; }
+  .plan-projected { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .plan-proj-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
+  .plan-proj-card.on-track { border-color: var(--green); }
+  .plan-proj-card.caution  { border-color: var(--amber); }
+  .plan-proj-card.over     { border-color: var(--red); }
+  .plan-proj-val { font-family: var(--display); font-size: 1.6rem; font-weight: 800; }
+  .plan-proj-val.on-track { color: var(--green); }
+  .plan-proj-val.caution  { color: var(--amber); }
+  .plan-proj-val.over     { color: var(--red); }
+  .plan-proj-lbl { font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+  .plan-gap-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 6px; }
+  .plan-gap-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .plan-snacks-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 6px; }
+  .plan-snack { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; margin-bottom: 6px; }
+  .plan-snack-name { font-size: 0.76rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .plan-snack-why { font-size: 0.6rem; color: var(--muted); }
+
   .modal-actions { display: flex; gap: 8px; }
   .btn-confirm { flex: 1; background: var(--green); border: none; border-radius: 8px; color: #000; cursor: pointer; font-family: var(--display); font-size: 0.9rem; font-weight: 700; padding: 11px; text-transform: uppercase; }
   .btn-cancel { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); cursor: pointer; font-family: var(--display); font-size: 0.9rem; font-weight: 700; padding: 11px; text-transform: uppercase; }
@@ -301,9 +359,9 @@
 <div class="budget-panel">
   <div class="budget-row">
     <div class="budget-card" id="card-kcal">
-      <div class="budget-label">Kcal Remaining</div>
+      <div class="budget-label" id="kcal-card-label">Kcal Remaining</div>
       <div class="budget-value" id="val-kcal-rem">—</div>
-      <div class="budget-unit">of <span id="val-kcal-target">2600</span> kcal</div>
+      <div class="budget-unit" id="kcal-card-unit">of <span id="val-kcal-target">2600</span> kcal target</div>
     </div>
     <div class="budget-card" id="card-prot">
       <div class="budget-label">Protein Remaining</div>
@@ -386,6 +444,40 @@
   <div class="empty-state">Nothing logged yet.</div>
 </div>
 
+<!-- Plan Ahead Button -->
+<div style="padding: 12px 16px 0;">
+  <button onclick="togglePlanPanel()" style="width:100%;background:var(--surface);border:1px dashed var(--amber);border-radius:8px;color:var(--amber);cursor:pointer;font-family:var(--display);font-size:0.85rem;font-weight:700;letter-spacing:0.06em;padding:10px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;">
+    🍽 Plan Ahead
+  </button>
+</div>
+
+<!-- Plan Ahead Panel -->
+<div class="plan-panel" id="plan-panel">
+  <div class="plan-header">
+    <span>🍽 Dinner Planner</span>
+    <button class="rec-close" onclick="togglePlanPanel()">✕</button>
+  </div>
+  <div class="plan-input-row">
+    <input type="text" class="plan-input" id="plan-input" placeholder="Describe your planned dinner…">
+    <button class="btn-plan-calc" id="plan-btn" onclick="calcPlan()">Calculate</button>
+  </div>
+  <div class="plan-results" id="plan-results">
+    <div style="font-size:0.6rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;">Planned dinner macros</div>
+    <div class="modal-macros" style="margin-bottom:10px;">
+      <div class="modal-macro"><div class="modal-macro-val kcal" id="pl-kcal">0</div><div class="modal-macro-lbl">Kcal</div></div>
+      <div class="modal-macro"><div class="modal-macro-val prot" id="pl-prot">0g</div><div class="modal-macro-lbl">Protein</div></div>
+      <div class="modal-macro"><div class="modal-macro-val carbs" id="pl-carbs">0g</div><div class="modal-macro-lbl">Carbs</div></div>
+      <div class="modal-macro"><div class="modal-macro-val fat" id="pl-fat">0g</div><div class="modal-macro-lbl">Fat</div></div>
+    </div>
+    <div class="plan-gap-label">Projected end-of-day (eaten + dinner)</div>
+    <div class="plan-projected" id="plan-projected"></div>
+    <div class="plan-gap-label" style="margin-top:10px;">Gap to fill with snacks before dinner</div>
+    <div class="plan-gap-chips" id="plan-gap-chips"></div>
+    <div class="plan-snacks-label">Suggested snacks</div>
+    <div id="plan-snacks"></div>
+  </div>
+</div>
+
 <!-- Fixed Input -->
 <div class="input-area">
   <input type="text" class="input-name" id="food-name" placeholder="Name (optional) — e.g. Breakfast chocolate smoothie">
@@ -402,6 +494,21 @@
 <div class="modal-overlay" id="confirm-modal" style="display:none;">
   <div class="modal">
     <h2 id="modal-food-name">Food</h2>
+
+    <!-- Portion adjuster -->
+    <div class="portion-row">
+      <span class="portion-label">Logging</span>
+      <input type="number" class="portion-input" id="portion-amount" placeholder="—" min="1" oninput="updatePortion()">
+      <span class="portion-sep">of</span>
+      <input type="number" class="portion-input" id="portion-total" placeholder="total" min="1" oninput="updatePortion()">
+      <select class="portion-unit" id="portion-unit" onchange="updatePortion()">
+        <option value="ml">ml</option>
+        <option value="g">g</option>
+        <option value="serving">serving</option>
+      </select>
+    </div>
+    <div class="portion-hint" id="portion-hint">Leave blank to log the full amount</div>
+
     <div class="modal-macros">
       <div class="modal-macro"><div class="modal-macro-val kcal" id="m-kcal">0</div><div class="modal-macro-lbl">Kcal</div></div>
       <div class="modal-macro"><div class="modal-macro-val prot" id="m-prot">0g</div><div class="modal-macro-lbl">Protein</div></div>
@@ -424,6 +531,40 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-confirm" onclick="confirmLog()">Add to Log</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal" style="display:none;">
+  <div class="modal">
+    <h2>Edit Entry</h2>
+    <div style="margin-bottom:8px;">
+      <div class="edit-macro-lbl">Name</div>
+      <input type="text" class="edit-field" id="edit-name" placeholder="Food name">
+    </div>
+    <div class="edit-grid">
+      <div>
+        <div class="edit-macro-lbl">Kcal</div>
+        <input type="number" class="edit-macro-field" id="edit-kcal" min="0">
+      </div>
+      <div>
+        <div class="edit-macro-lbl">Protein (g)</div>
+        <input type="number" class="edit-macro-field" id="edit-prot" min="0" step="0.1">
+      </div>
+      <div>
+        <div class="edit-macro-lbl">Carbs (g)</div>
+        <input type="number" class="edit-macro-field" id="edit-carbs" min="0" step="0.1">
+      </div>
+      <div>
+        <div class="edit-macro-lbl">Fat (g)</div>
+        <input type="number" class="edit-macro-field" id="edit-fat" min="0" step="0.1">
+      </div>
+    </div>
+    <div style="font-size:0.6rem;color:var(--muted);margin-bottom:12px;">Micronutrients will be kept from the original entry.</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-confirm" onclick="saveEdit()">Save Changes</button>
     </div>
   </div>
 </div>
@@ -583,17 +724,17 @@ function pinSubmit() {
 
 const DEFAULT_TARGETS = { kcal: 2600, prot: 180, carbs: 300, fat: 80 };
 
-// Micronutrient RDA targets
+// Micronutrient targets — NHS/EFSA RNI for adult male ~49yrs
 const MICROS = [
-  { key: 'mg',  label: 'Magnesium', unit: 'mg',  rda: 375  },
-  { key: 'ca',  label: 'Calcium',   unit: 'mg',  rda: 800  },
-  { key: 'fe',  label: 'Iron',      unit: 'mg',  rda: 14   },
-  { key: 'vd',  label: 'Vitamin D', unit: 'µg',  rda: 15   },
-  { key: 'k2',  label: 'Vit K2',    unit: 'µg',  rda: 75   },
-  { key: 'zn',  label: 'Zinc',      unit: 'mg',  rda: 10   },
-  { key: 'k',   label: 'Potassium', unit: 'mg',  rda: 3500 },
-  { key: 'vc',  label: 'Vitamin C', unit: 'mg',  rda: 80   },
-  { key: 'b12', label: 'B12',       unit: 'µg',  rda: 2.4  },
+  { key: 'mg',  label: 'Magnesium', unit: 'mg',  rda: 300  },  // NHS RNI men
+  { key: 'ca',  label: 'Calcium',   unit: 'mg',  rda: 700  },  // NHS RNI men
+  { key: 'fe',  label: 'Iron',      unit: 'mg',  rda: 8.7  },  // NHS RNI men (14mg is female)
+  { key: 'vd',  label: 'Vitamin D', unit: 'µg',  rda: 10   },  // NHS UK adults
+  { key: 'k2',  label: 'Vit K2',    unit: 'µg',  rda: 75   },  // EFSA adequate intake
+  { key: 'zn',  label: 'Zinc',      unit: 'mg',  rda: 9.5  },  // NHS RNI men
+  { key: 'k',   label: 'Potassium', unit: 'mg',  rda: 3500 },  // NHS
+  { key: 'vc',  label: 'Vitamin C', unit: 'mg',  rda: 40   },  // NHS RNI men
+  { key: 'b12', label: 'B12',       unit: 'µg',  rda: 1.5  },  // NHS RNI adults
 ];
 
 let pendingEntry = null;
@@ -671,14 +812,35 @@ function getEffectiveKcalTarget() { return burn > 0 ? burn : targets.kcal; }
 
 function renderAll() {
   const t = totals();
-  const kcalTarget = getEffectiveKcalTarget();
 
   document.getElementById('eaten-kcal').textContent  = Math.round(t.kcal);
   document.getElementById('eaten-prot').textContent  = Math.round(t.prot) + 'g P';
   document.getElementById('eaten-carbs').textContent = Math.round(t.carbs) + 'g C';
   document.getElementById('eaten-fat').textContent   = Math.round(t.fat) + 'g F';
 
-  renderCard('card-kcal', 'val-kcal-rem', 'val-kcal-target', kcalTarget - t.kcal, kcalTarget);
+  // Kcal card — if Fitbit burn entered, remaining = burn - eaten
+  // Also show whether you're above/below your manual target
+  if (burn > 0) {
+    const kcalRem = burn - t.kcal;
+    document.getElementById('val-kcal-rem').textContent = Math.round(kcalRem);
+    document.getElementById('val-kcal-target').textContent = burn;
+    document.getElementById('kcal-card-label').textContent = 'Kcal Remaining';
+    // Show manual target delta as a hint
+    const delta = targets.kcal - t.kcal;
+    document.getElementById('kcal-card-unit').innerHTML =
+      `of <span id="val-kcal-target">${burn}</span> burned · target ${delta >= 0 ? Math.round(delta) + ' left' : Math.abs(Math.round(delta)) + ' over'}`;
+    const card = document.getElementById('card-kcal');
+    card.className = 'budget-card ' + (kcalRem < 0 ? 'over' : kcalRem < burn * 0.1 ? 'caution' : 'on-track');
+  } else {
+    const kcalRem = targets.kcal - t.kcal;
+    document.getElementById('val-kcal-rem').textContent = Math.round(kcalRem);
+    document.getElementById('kcal-card-unit').innerHTML =
+      `of <span id="val-kcal-target">${targets.kcal}</span> kcal target`;
+    document.getElementById('kcal-card-label').textContent = 'Kcal Remaining';
+    const card = document.getElementById('card-kcal');
+    card.className = 'budget-card ' + (kcalRem < 0 ? 'over' : kcalRem < targets.kcal * 0.15 ? 'caution' : 'on-track');
+  }
+
   renderCard('card-prot', 'val-prot-rem', 'val-prot-target', targets.prot - t.prot, targets.prot);
   renderBar('bar-carbs', 'nums-carbs', t.carbs, targets.carbs, 'g');
   renderBar('bar-fat',   'nums-fat',   t.fat,   targets.fat,   'g');
@@ -731,6 +893,7 @@ function renderLog() {
       </div>
       <span class="log-entry-kcal">${e.kcal}</span>
       <span class="log-entry-time">${e.time}</span>
+      <button class="btn-remove" onclick="openEditModal(${i})" style="color:var(--muted);font-size:0.8rem;" title="Edit">✏️</button>
       <button class="btn-remove" onclick="removeEntry(${i})">✕</button>
     </div>`;
   }).join('');
@@ -820,8 +983,56 @@ async function logFood() {
   }
 }
 
+function updatePortion() {
+  if (!pendingEntry) return;
+  const amount = parseFloat(document.getElementById('portion-amount').value);
+  const total  = parseFloat(document.getElementById('portion-total').value);
+  const ratio  = (amount > 0 && total > 0 && amount <= total) ? amount / total : 1;
+  const hint   = document.getElementById('portion-hint');
+
+  if (amount > 0 && total > 0) {
+    if (amount > total) {
+      hint.textContent = 'Portion cannot exceed total';
+      hint.style.color = 'var(--red)';
+    } else {
+      const pct = Math.round(ratio * 100);
+      hint.textContent = `Logging ${pct}% of the total`;
+      hint.style.color = 'var(--green)';
+    }
+  } else {
+    hint.textContent = 'Leave blank to log the full amount';
+    hint.style.color = 'var(--muted)';
+  }
+
+  const e = pendingEntry;
+  const scale = (n) => Math.round(n * ratio * 10) / 10;
+  const scaleInt = (n) => Math.round(n * ratio);
+
+  document.getElementById('m-kcal').textContent  = scaleInt(e.kcal);
+  document.getElementById('m-prot').textContent  = scale(e.prot) + 'g';
+  document.getElementById('m-carbs').textContent = scale(e.carbs) + 'g';
+  document.getElementById('m-fat').textContent   = scale(e.fat) + 'g';
+
+  const micro = e.micro || {};
+  MICROS.forEach(m => {
+    const el = document.getElementById('mm-' + m.key);
+    if (el) {
+      const val = (micro[m.key] || 0) * ratio;
+      el.textContent = m.unit === 'µg' ? (Math.round(val * 100) / 100) : Math.round(val * 10) / 10;
+    }
+  });
+}
+
 function showModal(entry) {
   document.getElementById('modal-food-name').textContent = entry.name;
+
+  // Reset portion fields
+  document.getElementById('portion-amount').value = '';
+  document.getElementById('portion-total').value  = '';
+  document.getElementById('portion-unit').value   = 'ml';
+  document.getElementById('portion-hint').textContent = 'Leave blank to log the full amount';
+  document.getElementById('portion-hint').style.color = 'var(--muted)';
+
   document.getElementById('m-kcal').textContent  = entry.kcal;
   document.getElementById('m-prot').textContent  = entry.prot + 'g';
   document.getElementById('m-carbs').textContent = entry.carbs + 'g';
@@ -836,10 +1047,8 @@ function showModal(entry) {
     }
   });
 
-  // Reset modal micros to collapsed
   document.getElementById('modal-micros-grid').style.display = 'none';
   document.getElementById('modal-micro-caret').textContent = '▼';
-
   document.getElementById('confirm-modal').style.display = 'flex';
 }
 
@@ -850,7 +1059,23 @@ function closeModal() {
 
 function confirmLog() {
   if (!pendingEntry) return;
-  log.push(pendingEntry);
+
+  // Apply portion ratio if set
+  const amount = parseFloat(document.getElementById('portion-amount').value);
+  const total  = parseFloat(document.getElementById('portion-total').value);
+  const ratio  = (amount > 0 && total > 0 && amount <= total) ? amount / total : 1;
+
+  const entry = {
+    name:  pendingEntry.name + (ratio < 1 ? ` (${Math.round(ratio*100)}%)` : ''),
+    kcal:  Math.round(pendingEntry.kcal  * ratio),
+    prot:  Math.round(pendingEntry.prot  * ratio * 10) / 10,
+    carbs: Math.round(pendingEntry.carbs * ratio * 10) / 10,
+    fat:   Math.round(pendingEntry.fat   * ratio * 10) / 10,
+    micro: Object.fromEntries(MICROS.map(m => [m.key, Math.round((pendingEntry.micro?.[m.key] || 0) * ratio * 100) / 100])),
+    time:  pendingEntry.time
+  };
+
+  log.push(entry);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
   document.getElementById('food-input').value = '';
   document.getElementById('food-input').style.height = 'auto';
@@ -877,10 +1102,11 @@ function saveFavourite() {
 
 function addFavourite(i) {
   const f = favs[i];
-  log.push({ ...f, time: new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }) });
-  localStorage.setItem(KEY_LOG, JSON.stringify(log));
-  renderAll();
-  showToast('Added: ' + f.name);
+  pendingEntry = {
+    ...f,
+    time: new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' })
+  };
+  showModal(pendingEntry);
 }
 
 function deleteFav(i) {
@@ -950,7 +1176,7 @@ async function getRecommendations() {
   if (!apiKey) { showToast('Please save your API key first', true); return; }
 
   const t = totals();
-  const kcalTarget = getEffectiveKcalTarget();
+  const kcalTarget = burn > 0 ? burn : targets.kcal;
   const kcalRem  = Math.round(kcalTarget - t.kcal);
   const protRem  = Math.round(targets.prot - t.prot);
   const carbsRem = Math.round(targets.carbs - t.carbs);
@@ -1037,6 +1263,168 @@ Return ONLY valid JSON, no markdown, no explanation:
     document.getElementById('rec-snacks').innerHTML = `<div style="color:var(--red);font-size:0.72rem;padding:8px 0;">Error: ${escHtml(err.message || 'Unknown error')}</div>`;
   } finally {
     btn.disabled = false;
+  }
+}
+
+// ─── EDIT MODAL ──────────────────────────────────────────────────────────────
+
+let editIndex = -1;
+
+function openEditModal(i) {
+  editIndex = i;
+  const e = log[i];
+  document.getElementById('edit-name').value  = e.name;
+  document.getElementById('edit-kcal').value  = e.kcal;
+  document.getElementById('edit-prot').value  = e.prot;
+  document.getElementById('edit-carbs').value = e.carbs;
+  document.getElementById('edit-fat').value   = e.fat;
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').style.display = 'none';
+  editIndex = -1;
+}
+
+function saveEdit() {
+  if (editIndex < 0) return;
+  const e = log[editIndex];
+  log[editIndex] = {
+    ...e,
+    name:  document.getElementById('edit-name').value.trim() || e.name,
+    kcal:  Math.round(parseFloat(document.getElementById('edit-kcal').value)  || 0),
+    prot:  Math.round(parseFloat(document.getElementById('edit-prot').value)  * 10) / 10 || 0,
+    carbs: Math.round(parseFloat(document.getElementById('edit-carbs').value) * 10) / 10 || 0,
+    fat:   Math.round(parseFloat(document.getElementById('edit-fat').value)   * 10) / 10 || 0,
+  };
+  localStorage.setItem(KEY_LOG, JSON.stringify(log));
+  closeEditModal();
+  renderAll();
+  showToast('Entry updated');
+}
+
+// ─── PLAN AHEAD ──────────────────────────────────────────────────────────────
+
+let planEntry = null;
+
+function togglePlanPanel() {
+  const panel = document.getElementById('plan-panel');
+  panel.classList.toggle('open');
+}
+
+async function calcPlan() {
+  const text = document.getElementById('plan-input').value.trim();
+  if (!text) return;
+  const apiKey = localStorage.getItem(KEY_API);
+  if (!apiKey) { showToast('Please save your API key first', true); return; }
+
+  const btn = document.getElementById('plan-btn');
+  btn.disabled = true;
+  btn.textContent = '…';
+  document.getElementById('plan-results').classList.remove('open');
+
+  try {
+    // Step 1: get macros for planned dinner
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 400,
+        system: `You are a nutrition calculator. Return ONLY valid JSON, no markdown, no explanation:
+{"name":"string","kcal":number,"prot":number,"carbs":number,"fat":number}`,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.content.find(b => b.type === 'text')?.text || '';
+    planEntry = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    // Show dinner macros
+    document.getElementById('pl-kcal').textContent  = Math.round(planEntry.kcal);
+    document.getElementById('pl-prot').textContent  = Math.round(planEntry.prot * 10) / 10 + 'g';
+    document.getElementById('pl-carbs').textContent = Math.round(planEntry.carbs * 10) / 10 + 'g';
+    document.getElementById('pl-fat').textContent   = Math.round(planEntry.fat * 10) / 10 + 'g';
+
+    // Step 2: projected totals
+    const t = totals();
+    const kcalTarget = burn > 0 ? burn : targets.kcal;
+    const proj = {
+      kcal:  t.kcal  + planEntry.kcal,
+      prot:  t.prot  + planEntry.prot,
+      carbs: t.carbs + planEntry.carbs,
+      fat:   t.fat   + planEntry.fat,
+    };
+
+    const projCards = [
+      { label: 'Kcal', val: Math.round(proj.kcal), target: kcalTarget, unit: 'kcal' },
+      { label: 'Protein', val: Math.round(proj.prot * 10)/10, target: targets.prot, unit: 'g' },
+    ];
+    document.getElementById('plan-projected').innerHTML = projCards.map(c => {
+      const rem = c.target - c.val;
+      const state = c.val > c.target * 1.05 ? 'over' : c.val > c.target * 0.9 ? 'on-track' : 'caution';
+      return `<div class="plan-proj-card ${state}">
+        <div class="plan-proj-val ${state}">${c.val}${c.unit === 'g' ? 'g' : ''}</div>
+        <div class="plan-proj-lbl">${c.label} projected</div>
+        <div style="font-size:0.58rem;color:var(--muted);margin-top:2px;">${rem >= 0 ? rem + ' under target' : Math.abs(rem) + ' over target'}</div>
+      </div>`;
+    }).join('');
+
+    // Step 3: gap chips (what's still needed before dinner)
+    const gapKcal  = Math.round(kcalTarget  - proj.kcal);
+    const gapProt  = Math.round(targets.prot  - proj.prot);
+    const gapCarbs = Math.round(targets.carbs - proj.carbs);
+    const gapFat   = Math.round(targets.fat   - proj.fat);
+
+    const chipClass = (v, thr) => v < -thr ? 'over' : v > thr ? 'need' : 'good';
+    document.getElementById('plan-gap-chips').innerHTML = [
+      { label: `${gapKcal >= 0 ? '' : ''}${gapKcal} kcal`, cls: chipClass(gapKcal, 150) },
+      { label: `${gapProt >= 0 ? '' : ''}${gapProt}g protein`, cls: chipClass(gapProt, 10) },
+      { label: `${gapCarbs >= 0 ? '' : ''}${gapCarbs}g carbs`, cls: chipClass(gapCarbs, 30) },
+      { label: `${gapFat >= 0 ? '' : ''}${gapFat}g fat`, cls: chipClass(gapFat, 10) },
+    ].map(g => `<span class="rec-gap-chip ${g.cls}">${g.label}</span>`).join('');
+
+    // Step 4: snack suggestions factoring in planned dinner
+    document.getElementById('plan-snacks').innerHTML = '<div style="color:var(--muted);font-size:0.72rem;"><span class="spinner"></span> Finding snacks…</div>';
+
+    const logSummary = log.length ? log.map(e => e.name).join(', ') : 'nothing yet';
+    const snackPrompt = `Nutrition targets: ${kcalTarget} kcal, ${targets.prot}g protein, ${targets.carbs}g carbs, ${targets.fat}g fat.
+Eaten so far: ${logSummary}.
+Planned dinner (not yet eaten): ${planEntry.name} — ${Math.round(planEntry.kcal)} kcal, ${Math.round(planEntry.prot)}g P, ${Math.round(planEntry.carbs)}g C, ${Math.round(planEntry.fat)}g F.
+After eating dinner the gaps will be: ${gapKcal} kcal, ${gapProt}g protein, ${gapCarbs}g carbs, ${gapFat}g fat.
+Suggest 3-4 snacks to eat BEFORE dinner to close these gaps. Person trains 5x/week, cooks from scratch, prioritises protein.
+Return ONLY valid JSON: {"snacks":[{"name":"...","why":"one sentence","kcal":number,"prot":number}]}`;
+
+    const r2 = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 500, messages: [{ role: 'user', content: snackPrompt }] })
+    });
+    const d2 = await r2.json();
+    const raw2 = d2.content.find(b => b.type === 'text')?.text || '';
+    const parsed2 = JSON.parse(raw2.replace(/```json|```/g, '').trim());
+
+    document.getElementById('plan-snacks').innerHTML = (parsed2.snacks || []).map(s =>
+      `<div class="plan-snack">
+        <div class="plan-snack-name">${escHtml(s.name)} <span style="color:var(--green);font-size:0.7rem;">${s.kcal}kcal · ${s.prot}g P</span></div>
+        <div class="plan-snack-why">${escHtml(s.why)}</div>
+      </div>`
+    ).join('');
+
+    document.getElementById('plan-results').classList.add('open');
+
+  } catch (err) {
+    document.getElementById('plan-snacks').innerHTML = `<div style="color:var(--red);font-size:0.72rem;">Error: ${escHtml(err.message || 'Unknown')}</div>`;
+    document.getElementById('plan-results').classList.add('open');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Calculate';
   }
 }
 
