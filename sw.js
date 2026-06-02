@@ -1,4 +1,4 @@
-const CACHE = 'tracker-v9';
+const CACHE = 'tracker-v11';
 const ASSETS = [
   '/edesia/',
   '/edesia/index.html',

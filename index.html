@@ -696,6 +696,7 @@ const KEY_API     = 'scrf_ak';
 const KEY_PIN     = STORAGE_PREFIX + 'pin';
 const KEY_GIST_TOKEN = STORAGE_PREFIX + 'gist_token';
 const KEY_GIST_ID    = STORAGE_PREFIX + 'gist_id';
+const KEY_DELETED    = STORAGE_PREFIX + 'deleted'; // tombstone list of deleted entry IDs
 
 const BMR         = 1760;   // Renpho measured BMR
 const DEFICIT     = 500;    // Daily calorie deficit target
@@ -865,6 +866,7 @@ let log = [];
 let favs = [];
 let burn = 0;
 let microOpen = false;
+let deleted = new Set(); // tombstone IDs
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 
@@ -885,6 +887,7 @@ function init() {
   try { log = JSON.parse(localStorage.getItem(KEY_LOG)) || []; } catch { log = []; }
   try { favs = JSON.parse(localStorage.getItem(KEY_FAVS)) || []; } catch { favs = []; }
   try { targets = { ...DEFAULT_TARGETS, ...JSON.parse(localStorage.getItem(KEY_TARGETS)) }; } catch {}
+  try { deleted = new Set(JSON.parse(localStorage.getItem(KEY_DELETED)) || []); } catch { deleted = new Set(); }
   burn = parseInt(localStorage.getItem(KEY_BURN)) || 0;
   loadPlanned();
 
@@ -1209,6 +1212,7 @@ function confirmLog() {
   const ratio  = (amount > 0 && total > 0 && amount <= total) ? amount / total : 1;
 
   const entry = {
+    id:    Date.now() + '_' + Math.random().toString(36).slice(2,7),
     name:  pendingEntry.name + (ratio < 1 ? ` (${Math.round(ratio*100)}%)` : ''),
     kcal:  Math.round(pendingEntry.kcal  * ratio),
     prot:  Math.round(pendingEntry.prot  * ratio * 10) / 10,
@@ -1236,6 +1240,11 @@ function confirmLog() {
 }
 
 function removeEntry(i) {
+  const entry = log[i];
+  if (entry.id) {
+    deleted.add(entry.id);
+    localStorage.setItem(KEY_DELETED, JSON.stringify([...deleted]));
+  }
   log.splice(i, 1);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
   syncAll();
@@ -1287,6 +1296,7 @@ async function pushToGist(token, gistId) {
     log:     log,
     burn:    burn,
     planned: planned,
+    deleted: [...deleted],
     date:    todayStr(),
   };
   const res = await fetch(`https://api.github.com/gists/${gistId}`, {
@@ -1339,15 +1349,34 @@ async function syncAll(showFeedback = false) {
       const remotePayload = JSON.parse(remoteLogFile.content);
       const today = todayStr();
       if (remotePayload.date === today) {
-        if ((remotePayload.log || []).length > log.length) {
-          log = remotePayload.log || [];
-          localStorage.setItem(KEY_LOG, JSON.stringify(log));
-        }
+
+        // Merge tombstone lists first
+        const remoteDeleted = new Set(remotePayload.deleted || []);
+        deleted = new Set([...deleted, ...remoteDeleted]);
+        localStorage.setItem(KEY_DELETED, JSON.stringify([...deleted]));
+
+        // Remove any local entries that are in the tombstone
+        log = log.filter(e => !e.id || !deleted.has(e.id));
+
+        // Merge log entries by ID — only add remote entries not in tombstone
+        const remoteLog = remotePayload.log || [];
+        const localIds  = new Set(log.map(e => e.id).filter(Boolean));
+        remoteLog.forEach(re => {
+          if (re.id && !localIds.has(re.id) && !deleted.has(re.id)) log.push(re);
+        });
+
+        // Sort by time
+        log.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+        localStorage.setItem(KEY_LOG, JSON.stringify(log));
+
+        // Planned: merge by name
         const remotePlanned = remotePayload.planned || [];
         remotePlanned.forEach(rp => {
           if (!planned.find(lp => lp.name === rp.name)) planned.push(rp);
         });
         savePlanned();
+
+        // Burn: use whichever is higher
         const remoteBurn = remotePayload.burn || 0;
         if (remoteBurn > burn) {
           burn = remoteBurn;
@@ -1406,9 +1435,10 @@ function saveApiKey() {
 
 function confirmReset() {
   if (confirm("Reset today's log? This cannot be undone.")) {
-    log = []; burn = 0; planned = [];
+    log = []; burn = 0; planned = []; deleted = new Set();
     localStorage.removeItem(KEY_LOG);
     localStorage.removeItem(KEY_BURN);
+    localStorage.removeItem(KEY_DELETED);
     localStorage.removeItem(STORAGE_PREFIX + 'planned');
     document.getElementById('fitbit-burn').value = '';
     renderAll();
@@ -1784,6 +1814,7 @@ function eatPlanned(i) {
   const item = planned[i];
   log.push({
     ...item,
+    id:   Date.now() + '_' + Math.random().toString(36).slice(2,7),
     time: new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }),
   });
   planned.splice(i, 1);
@@ -2046,6 +2077,7 @@ function logRecipe() {
   const suffix = ratio < 0.99 ? ` (${Math.round(ratio * 100)}%)` : '';
 
   const entry = {
+    id:    Date.now() + '_' + Math.random().toString(36).slice(2,7),
     name:  customName + suffix,
     kcal:  Math.round(recipeEntry.kcal  * ratio),
     prot:  Math.round(recipeEntry.prot  * ratio * 10) / 10,
@@ -2070,10 +2102,11 @@ function scheduleMidnightReset() {
   const now = new Date(), midnight = new Date(now);
   midnight.setHours(24, 0, 0, 0);
   setTimeout(() => {
-    log = []; burn = 0; planned = [];
+    log = []; burn = 0; planned = []; deleted = new Set();
     localStorage.setItem(KEY_DATE, todayStr());
     localStorage.removeItem(KEY_LOG);
     localStorage.removeItem(KEY_BURN);
+    localStorage.removeItem(KEY_DELETED);
     localStorage.removeItem(STORAGE_PREFIX + 'planned');
     document.getElementById('fitbit-burn').value = '';
     renderAll();
