@@ -1226,7 +1226,7 @@ function confirmLog() {
 
   log.push(entry);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
-  syncAll();
+  schedulePush();
   document.getElementById('food-input').value = '';
   document.getElementById('food-input').style.height = 'auto';
   document.getElementById('food-name').value = '';
@@ -1249,7 +1249,7 @@ function removeEntry(i) {
   }
   log.splice(i, 1);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
-  syncAll();
+  schedulePush();
   renderAll();
 }
 
@@ -1290,6 +1290,18 @@ function saveGistSettings() {
   if (id)    localStorage.setItem(KEY_GIST_ID, id);
   showToast('Gist settings saved');
   syncAll(true);
+}
+
+// Debounced sync — batches rapid changes into one push after 2.5 seconds
+let _syncTimer = null;
+function schedulePush() {
+  if (_syncTimer) clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(async () => {
+    const token  = localStorage.getItem(KEY_GIST_TOKEN);
+    const gistId = localStorage.getItem(KEY_GIST_ID);
+    if (!token || !gistId) return;
+    try { await pushToGist(token, gistId); } catch(e) { console.warn('Push failed:', e.message); }
+  }, 2500);
 }
 
 // Push everything to Gist in one PATCH call
@@ -1348,7 +1360,7 @@ async function syncAll(showFeedback = false) {
 
   try {
     const getRes = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
     });
     if (!getRes.ok) throw new Error(`Gist fetch failed: ${getRes.status}`);
     const gistData = await getRes.json();
@@ -1440,9 +1452,15 @@ async function syncFavs(showFeedback = false) {
 // ─── FITBIT / TARGETS / API KEY ──────────────────────────────────────────────
 
 function updateBurn() {
-  burn = parseInt(document.getElementById('fitbit-burn').value) || 0;
+  let val = parseInt(document.getElementById('fitbit-burn').value) || 0;
+  if (val > 6000) {
+    val = 0;
+    document.getElementById('fitbit-burn').value = '';
+    showToast('Burn value looks wrong — cleared', true);
+  }
+  burn = val;
   localStorage.setItem(KEY_BURN, burn);
-  syncAll();
+  schedulePush();
   renderAll();
 }
 
@@ -1642,7 +1660,7 @@ function saveEdit() {
   if (editTarget === 'log') {
     log[editIndex] = { ...log[editIndex], ...updated };
     localStorage.setItem(KEY_LOG, JSON.stringify(log));
-    syncAll();
+    schedulePush();
   } else {
     favs[editIndex] = { ...favs[editIndex], ...updated };
     localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
@@ -1857,7 +1875,7 @@ function eatPlanned(i) {
   planned.splice(i, 1);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
   savePlanned();
-  syncAll();
+  schedulePush();
   renderAll();
   showToast('Logged: ' + item.name);
 }
@@ -1865,7 +1883,7 @@ function eatPlanned(i) {
 function deletePlanned(i) {
   planned.splice(i, 1);
   savePlanned();
-  syncAll();
+  schedulePush();
   renderAll();
 }
 
@@ -2128,7 +2146,7 @@ function logRecipe() {
 
   log.push(entry);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
-  syncAll();
+  schedulePush();
   closeRecipeModal();
   document.getElementById('food-name').value = '';
   renderAll();
@@ -2181,7 +2199,7 @@ async function pullOnBoot() {
   if (!token || !gistId) { renderAll(); return; }
   try {
     const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' }
     });
     if (!res.ok) return;
     const gistData = await res.json();
