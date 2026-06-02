@@ -2148,7 +2148,83 @@ function scheduleMidnightReset() {
 function appBoot() {
   init();
   scheduleMidnightReset();
-  syncAll(false);
+  pullOnBoot();
+}
+
+// On boot: only pull from Gist if remote has a newer reset than us
+// Never push on boot — only push when user makes a change
+async function pullOnBoot() {
+  const token  = localStorage.getItem(KEY_GIST_TOKEN);
+  const gistId = localStorage.getItem(KEY_GIST_ID);
+  if (!token || !gistId) return;
+  try {
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) return;
+    const gistData = await res.json();
+
+    // Favourites — always pull if remote has more
+    const remoteFavsRaw = gistData.files?.['edesia-favourites.json']?.content || '[]';
+    const remoteFavs = JSON.parse(remoteFavsRaw);
+    if (remoteFavs.length > favs.length) {
+      favs = remoteFavs;
+      localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
+    }
+
+    const remoteLogFile = gistData.files?.['edesia-log.json'];
+    if (!remoteLogFile || !remoteLogFile.content) { renderAll(); return; }
+    const remotePayload = JSON.parse(remoteLogFile.content);
+    const today = todayStr();
+    if (remotePayload.date !== today) { renderAll(); return; }
+
+    const localResetAt  = parseInt(localStorage.getItem(STORAGE_PREFIX + 'resetAt') || '0');
+    const remoteResetAt = parseInt(remotePayload.resetAt || '0');
+
+    if (remoteResetAt > localResetAt) {
+      // Remote was reset more recently — adopt its (empty) state
+      log     = remotePayload.log     || [];
+      burn    = remotePayload.burn    || 0;
+      planned = remotePayload.planned || [];
+      deleted = new Set(remotePayload.deleted || []);
+      localStorage.setItem(KEY_LOG,     JSON.stringify(log));
+      localStorage.setItem(KEY_BURN,    String(burn));
+      localStorage.setItem(KEY_DELETED, JSON.stringify([...deleted]));
+      localStorage.setItem(STORAGE_PREFIX + 'resetAt', String(remoteResetAt));
+      savePlanned();
+      const burnEl = document.getElementById('fitbit-burn');
+      if (burnEl) burnEl.value = burn || '';
+    } else {
+      // Merge remote entries into local (pick up entries added on other devices)
+      const remoteDeleted = new Set(remotePayload.deleted || []);
+      deleted = new Set([...deleted, ...remoteDeleted]);
+      localStorage.setItem(KEY_DELETED, JSON.stringify([...deleted]));
+      log = log.filter(e => !e.id || !deleted.has(e.id));
+      const remoteLog = remotePayload.log || [];
+      const localIds  = new Set(log.map(e => e.id).filter(Boolean));
+      remoteLog.forEach(re => {
+        if (re.id && !localIds.has(re.id) && !deleted.has(re.id)) log.push(re);
+      });
+      log.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+      localStorage.setItem(KEY_LOG, JSON.stringify(log));
+      const remotePlanned = remotePayload.planned || [];
+      remotePlanned.forEach(rp => {
+        if (!planned.find(lp => lp.name === rp.name)) planned.push(rp);
+      });
+      savePlanned();
+      const remoteBurn = remotePayload.burn || 0;
+      if (remoteBurn > burn) {
+        burn = remoteBurn;
+        localStorage.setItem(KEY_BURN, String(burn));
+        const burnEl = document.getElementById('fitbit-burn');
+        if (burnEl) burnEl.value = burn;
+      }
+    }
+    renderAll();
+  } catch(e) {
+    console.warn('Boot pull failed:', e);
+    renderAll();
+  }
 }
 
 // Patch pin unlock to boot app on first successful unlock
