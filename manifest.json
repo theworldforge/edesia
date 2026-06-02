@@ -1,8 +1,9 @@
 {
   "name": "Paul's Daily Tracker",
-  "short_name": "Tracker",
+  "short_name": "Edesia",
   "description": "Personal daily nutrition and calorie tracker",
-  "start_url": "index.html",
+  "start_url": "/edesia/",
+  "scope": "/edesia/",
   "display": "standalone",
   "background_color": "#0f1117",
   "theme_color": "#0f1117",

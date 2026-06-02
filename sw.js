@@ -1,18 +1,18 @@
-const CACHE = 'tracker-v8';
+const CACHE = 'tracker-v9';
 const ASSETS = [
-  'index.html',
-  'manifest.json',
-  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap'
+  '/edesia/',
+  '/edesia/index.html',
+  '/edesia/manifest.json',
+  '/edesia/icons/icon-192.png',
+  '/edesia/icons/icon-512.png',
 ];
 
-// Install: cache core assets
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())
   );
 });
 
-// Activate: clean up old caches
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -21,10 +21,14 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Fetch: serve from cache, fall back to network
-// API calls (anthropic.com) always go to network — never cache them
 self.addEventListener('fetch', e => {
-  if (e.request.url.includes('anthropic.com') || e.request.url.includes('fonts.gstatic.com')) {
+  // Never cache API calls or fonts
+  if (
+    e.request.url.includes('anthropic.com') ||
+    e.request.url.includes('api.github.com') ||
+    e.request.url.includes('fonts.gstatic.com') ||
+    e.request.url.includes('fonts.googleapis.com')
+  ) {
     e.respondWith(fetch(e.request));
     return;
   }
