@@ -125,6 +125,31 @@
   .empty-state { text-align: center; padding: 24px; color: var(--muted); font-size: 0.75rem; }
   .log-count { font-size: 0.58rem; color: var(--muted); margin-left: auto; }
 
+  /* HISTORY */
+  .history-day { margin: 0 16px 8px; }
+  .history-day-header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px; cursor: pointer;
+    user-select: none;
+  }
+  .history-day-header:hover { border-color: var(--purple); }
+  .history-day-label { font-size: 0.7rem; font-weight: 600; color: var(--text); }
+  .history-day-summary { font-size: 0.62rem; color: var(--muted); }
+  .history-day-caret { font-size: 0.7rem; color: var(--muted); }
+  .history-entries { display: none; flex-direction: column; gap: 4px; margin-top: 4px; }
+  .history-entries.open { display: flex; }
+  .history-entry {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .history-entry-info { flex: 1; min-width: 0; }
+  .history-entry-name { font-size: 0.72rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-entry-macros { font-size: 0.6rem; color: var(--muted); margin-top: 1px; }
+  .history-entry-kcal { font-family: var(--display); font-size: 1rem; font-weight: 700; color: var(--purple); flex-shrink: 0; }
+  .btn-history-fav { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; font-size: 0.7rem; padding: 3px 7px; flex-shrink: 0; }
+  .btn-history-fav:hover { border-color: var(--amber); color: var(--amber); }
+
   .favs-grid { padding: 0 16px; display: flex; flex-wrap: wrap; gap: 8px; }
   .fav-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; font-family: var(--mono); font-size: 0.7rem; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: border-color 0.15s; }
   .fav-chip:hover { border-color: var(--green); color: var(--green); }
@@ -544,6 +569,9 @@
   <div class="empty-state">Nothing logged yet.</div>
 </div>
 
+<div class="section-header" id="history-header" style="display:none;">History <span class="log-count" id="history-count"></span></div>
+<div id="history-container"></div>
+
 </div><!-- /app-scroll -->
 
 <!-- Input Area (stays at bottom) -->
@@ -591,6 +619,49 @@
       <div>
         <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Fat (g)</div>
         <input type="number" class="edit-macro-field" id="manual-fat" placeholder="0" min="0" step="0.1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Fibre (g)</div>
+        <input type="number" class="edit-macro-field" id="manual-fibre" placeholder="0" min="0" step="0.1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Iron (mg)</div>
+        <input type="number" class="edit-macro-field" id="manual-fe" placeholder="0" min="0" step="0.1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Calcium (mg)</div>
+        <input type="number" class="edit-macro-field" id="manual-ca" placeholder="0" min="0" step="1" style="width:100%;">
+      </div>
+    </div>
+    <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;margin-top:2px;">Supplements / extra micros (optional)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Vit K2 (µg)</div>
+        <input type="number" class="edit-macro-field" id="manual-k2" placeholder="0" min="0" step="1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Vit D (µg)</div>
+        <input type="number" class="edit-macro-field" id="manual-vd" placeholder="0" min="0" step="0.1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Magnesium (mg)</div>
+        <input type="number" class="edit-macro-field" id="manual-mg" placeholder="0" min="0" step="1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Zinc (mg)</div>
+        <input type="number" class="edit-macro-field" id="manual-zn" placeholder="0" min="0" step="0.1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">B12 (µg)</div>
+        <input type="number" class="edit-macro-field" id="manual-b12" placeholder="0" min="0" step="0.1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Vit C (mg)</div>
+        <input type="number" class="edit-macro-field" id="manual-vc" placeholder="0" min="0" step="1" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Potassium (mg)</div>
+        <input type="number" class="edit-macro-field" id="manual-k" placeholder="0" min="0" step="1" style="width:100%;">
       </div>
     </div>
     <div style="display:flex;gap:8px;">
@@ -741,6 +812,7 @@ const KEY_PIN     = STORAGE_PREFIX + 'pin';
 const KEY_GIST_TOKEN = STORAGE_PREFIX + 'gist_token';
 const KEY_GIST_ID    = STORAGE_PREFIX + 'gist_id';
 const KEY_DELETED    = STORAGE_PREFIX + 'deleted'; // tombstone list of deleted entry IDs
+const KEY_HISTORY    = STORAGE_PREFIX + 'history'; // rolling 7-day log history
 
 const BMR         = 1760;   // Renpho measured BMR
 const DEFICIT     = 500;    // Daily calorie deficit target
@@ -920,6 +992,7 @@ let favs = [];
 let burn = 0;
 let microOpen = false;
 let deleted = new Set(); // tombstone IDs
+let history = {}; // { 'YYYY-MM-DD': [entries] }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 
@@ -941,6 +1014,7 @@ function init() {
   try { favs = JSON.parse(localStorage.getItem(KEY_FAVS)) || []; } catch { favs = []; }
   try { targets = { ...DEFAULT_TARGETS, ...JSON.parse(localStorage.getItem(KEY_TARGETS)) }; } catch {}
   try { deleted = new Set(JSON.parse(localStorage.getItem(KEY_DELETED)) || []); } catch { deleted = new Set(); }
+  try { history = JSON.parse(localStorage.getItem(KEY_HISTORY)) || {}; } catch { history = {}; }
   burn = parseInt(localStorage.getItem(KEY_BURN)) || 0;
   loadPlanned();
 
@@ -1039,6 +1113,7 @@ function renderAll() {
   renderLog();
   renderFavs();
   renderPlanned();
+  renderHistory();
 }
 
 function renderCard(cardId, valId, targetId, rem, target) {
@@ -1134,9 +1209,18 @@ function logManual() {
   const prot  = parseFloat(document.getElementById('manual-prot').value)  || 0;
   const carbs = parseFloat(document.getElementById('manual-carbs').value) || 0;
   const fat   = parseFloat(document.getElementById('manual-fat').value)   || 0;
+  const fibre = parseFloat(document.getElementById('manual-fibre').value) || 0;
+  const fe    = parseFloat(document.getElementById('manual-fe').value)    || 0;
+  const ca    = parseFloat(document.getElementById('manual-ca').value)    || 0;
+  const k2    = parseFloat(document.getElementById('manual-k2').value)    || 0;
+  const vd    = parseFloat(document.getElementById('manual-vd').value)    || 0;
+  const mg    = parseFloat(document.getElementById('manual-mg').value)    || 0;
+  const zn    = parseFloat(document.getElementById('manual-zn').value)    || 0;
+  const b12   = parseFloat(document.getElementById('manual-b12').value)   || 0;
+  const vc    = parseFloat(document.getElementById('manual-vc').value)    || 0;
+  const k     = parseFloat(document.getElementById('manual-k').value)     || 0;
 
   if (!name) { showToast('Please enter a food name', true); return; }
-  if (!kcal && !prot && !carbs && !fat) { showToast('Please enter at least one value', true); return; }
 
   pendingEntry = {
     name,
@@ -1144,16 +1228,19 @@ function logManual() {
     prot:  Math.round(prot * 10) / 10,
     carbs: Math.round(carbs * 10) / 10,
     fat:   Math.round(fat * 10) / 10,
-    micro: {},
+    fibre: Math.round(fibre * 10) / 10,
+    micro: { fe, ca, k2, vd, mg, zn, b12, vc, k },
     time:  new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }),
   };
   showModal(pendingEntry);
 
-  document.getElementById('manual-name').value  = '';
-  document.getElementById('manual-kcal').value  = '';
-  document.getElementById('manual-prot').value  = '';
-  document.getElementById('manual-carbs').value = '';
-  document.getElementById('manual-fat').value   = '';
+  // Clear all fields
+  ['manual-name','manual-kcal','manual-prot','manual-carbs','manual-fat',
+   'manual-fibre','manual-fe','manual-ca','manual-k2','manual-vd',
+   'manual-mg','manual-zn','manual-b12','manual-vc','manual-k'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
 }
 
 // ─── FOOD LOGGING ────────────────────────────────────────────────────────────
@@ -1161,14 +1248,13 @@ function logManual() {
 async function logFood() {
   const input = document.getElementById('food-input');
   const text = input.value.trim();
-  if (!text) return;
+  if (!text) { showToast('Please describe what you ate', true); return; }
 
   const apiKey = localStorage.getItem(KEY_API);
   if (!apiKey) { showToast('Please save your API key first', true); return; }
 
   const btn = document.getElementById('log-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1182,9 +1268,18 @@ async function logFood() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
         max_tokens: 500,
-        system: `You are a nutrition calculator. The user describes food or drink consumed. Return ONLY a valid JSON object — no markdown, no explanation, no backticks. Use standard nutritional databases. If quantities are unspecified, use typical serving sizes. The JSON must have exactly these fields:
+        system: `You are a nutrition calculator. The user describes food or drink consumed. Return ONLY a valid JSON object — no markdown, no explanation, no backticks. Use standard nutritional databases.
+
+CRITICAL RULES:
+- If the user specifies a quantity (e.g. "30g butter", "200ml milk", "2 eggs", "1 banana"), calculate nutrition for EXACTLY that amount. Set base_amount to the quantity given and base_unit to the unit used.
+- If NO quantity is specified (e.g. just "butter" or "milk"), calculate nutrition per 100g for solid foods or per 100ml for liquids/drinks. Set base_amount to 100 and base_unit to "g" or "ml" accordingly. This allows the user to scale to their actual amount.
+- For whole countable items with no natural weight unit (e.g. "egg", "banana", "apple"), calculate for 1 typical item. Set base_amount to 1 and base_unit to "item".
+
+The JSON must have exactly these fields:
 {
   "name": "short display name (max 40 chars)",
+  "base_amount": number (the amount these nutrition values are calculated for),
+  "base_unit": "g" | "ml" | "item",
   "kcal": number,
   "prot": number (grams protein, 1 decimal place),
   "carbs": number (grams carbohydrates, 1 decimal place),
@@ -1211,22 +1306,24 @@ async function logFood() {
     const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
 
     pendingEntry = {
-      name:  (document.getElementById('food-name').value.trim() || parsed.name),
-      kcal:  Math.round(parsed.kcal),
-      prot:  Math.round(parsed.prot * 10) / 10,
-      carbs: Math.round(parsed.carbs * 10) / 10,
-      fat:   Math.round(parsed.fat * 10) / 10,
-      micro: parsed.micro || {},
-      time:  new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }),
-      desc:  text
+      name:        (document.getElementById('food-name').value.trim() || parsed.name),
+      kcal:        Math.round(parsed.kcal),
+      prot:        Math.round(parsed.prot * 10) / 10,
+      carbs:       Math.round(parsed.carbs * 10) / 10,
+      fat:         Math.round(parsed.fat * 10) / 10,
+      micro:       parsed.micro || {},
+      base_amount: parsed.base_amount || null,
+      base_unit:   parsed.base_unit || null,
+      time:        new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }),
+      desc:        text
     };
 
     showModal(pendingEntry);
   } catch (err) {
     showToast('Error: ' + (err.message || 'Unknown error'), true);
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Log';
+    const b = document.getElementById('log-btn');
+    if (b) { b.disabled = false; b.textContent = 'Log'; }
   }
 }
 
@@ -1273,12 +1370,26 @@ function updatePortion() {
 function showModal(entry) {
   document.getElementById('modal-food-name').textContent = entry.name;
 
-  // Reset portion fields
-  document.getElementById('portion-amount').value = '';
-  document.getElementById('portion-total').value  = '';
-  document.getElementById('portion-unit').value   = 'ml';
-  document.getElementById('portion-hint').textContent = 'Leave blank to log the full amount';
-  document.getElementById('portion-hint').style.color = 'var(--muted)';
+  // Pre-fill portion fields based on what AI calculated for
+  const ba = entry.base_amount;
+  const bu = entry.base_unit;
+  const portionUnit = document.getElementById('portion-unit');
+
+  if (ba && bu) {
+    // AI calculated for a specific base — pre-fill total with that base
+    document.getElementById('portion-total').value  = ba;
+    document.getElementById('portion-amount').value = ba; // default to full amount
+    portionUnit.value = (bu === 'item') ? 'serving' : bu;
+    const hint = document.getElementById('portion-hint');
+    hint.textContent = `Per ${ba}${bu === 'item' ? ' item' : bu} shown — change "Logging" to your actual amount`;
+    hint.style.color = 'var(--teal)';
+  } else {
+    document.getElementById('portion-amount').value = '';
+    document.getElementById('portion-total').value  = '';
+    portionUnit.value = 'ml';
+    document.getElementById('portion-hint').textContent = 'Leave blank to log the full amount';
+    document.getElementById('portion-hint').style.color = 'var(--muted)';
+  }
 
   document.getElementById('m-kcal').textContent  = entry.kcal;
   document.getElementById('m-prot').textContent  = entry.prot + 'g';
@@ -1297,6 +1408,9 @@ function showModal(entry) {
   document.getElementById('modal-micros-grid').style.display = 'none';
   document.getElementById('modal-micro-caret').textContent = '▼';
   document.getElementById('confirm-modal').style.display = 'flex';
+
+  // If base pre-filled, trigger updatePortion so macros show correctly
+  if (ba && bu) updatePortion();
 }
 
 function closeModal() {
@@ -1310,11 +1424,21 @@ function confirmLog() {
   // Apply portion ratio if set
   const amount = parseFloat(document.getElementById('portion-amount').value);
   const total  = parseFloat(document.getElementById('portion-total').value);
+  const unit   = document.getElementById('portion-unit').value;
   const ratio  = (amount > 0 && total > 0 && amount <= total) ? amount / total : 1;
+
+  // Build a meaningful name suffix
+  let nameSuffix = '';
+  if (amount > 0 && total > 0 && amount !== total) {
+    nameSuffix = ` (${amount}${unit === 'serving' ? ' serving' : unit})`;
+  } else if (pendingEntry.base_amount && pendingEntry.base_unit && ratio === 1) {
+    const bu = pendingEntry.base_unit;
+    nameSuffix = ` (${pendingEntry.base_amount}${bu === 'item' ? ' item' : bu})`;
+  }
 
   const entry = {
     id:    Date.now() + '_' + Math.random().toString(36).slice(2,7),
-    name:  pendingEntry.name + (ratio < 1 ? ` (${Math.round(ratio*100)}%)` : ''),
+    name:  pendingEntry.name + nameSuffix,
     kcal:  Math.round(pendingEntry.kcal  * ratio),
     prot:  Math.round(pendingEntry.prot  * ratio * 10) / 10,
     carbs: Math.round(pendingEntry.carbs * ratio * 10) / 10,
@@ -1412,6 +1536,7 @@ async function pushToGist(token, gistId) {
     deleted: [...deleted],
     date:    todayStr(),
     resetAt: localStorage.getItem('pt_resetAt') || '0',
+    history: history,
   };
   const res = await fetch(`https://api.github.com/gists/${gistId}`, {
     method: 'PATCH',
@@ -2257,6 +2382,17 @@ function scheduleMidnightReset() {
   const now = new Date(), midnight = new Date(now);
   midnight.setHours(24, 0, 0, 0);
   setTimeout(() => {
+    // Archive today's log before wiping
+    if (log.length > 0) {
+      const yesterday = todayStr();
+      history[yesterday] = log.slice();
+      // Keep only last 7 days
+      const keys = Object.keys(history).sort().reverse().slice(0, 7);
+      const trimmed = {};
+      keys.forEach(k => { trimmed[k] = history[k]; });
+      history = trimmed;
+      localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+    }
     log = []; burn = 0; planned = []; deleted = new Set();
     const resetAt = String(Date.now());
     localStorage.setItem(KEY_DATE, todayStr());
@@ -2270,12 +2406,91 @@ function scheduleMidnightReset() {
     if (_t && _g) pushToGist(_t, _g).catch(() => {});
     document.getElementById('fitbit-burn').value = '';
     renderAll();
+    renderHistory();
     showToast('New day — log reset');
     scheduleMidnightReset();
   }, midnight - now);
 }
 
-// ─── BOOT ────────────────────────────────────────────────────────────────────
+// ─── HISTORY ──────────────────────────────────────────────────────────────────
+
+function renderHistory() {
+  const container = document.getElementById('history-container');
+  const header    = document.getElementById('history-header');
+  const countEl   = document.getElementById('history-count');
+  if (!container) return;
+
+  const dates = Object.keys(history).sort().reverse();
+  if (!dates.length) {
+    header.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+
+  header.style.display = 'flex';
+  countEl.textContent = `${dates.length} day${dates.length !== 1 ? 's' : ''}`;
+
+  container.innerHTML = dates.map(date => {
+    const entries = history[date] || [];
+    const totalKcal = entries.reduce((s, e) => s + (e.kcal || 0), 0);
+    const totalProt = entries.reduce((s, e) => s + (e.prot || 0), 0);
+    const d = new Date(date + 'T12:00:00');
+    const label = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
+
+    const entriesHtml = entries.map((e, i) => `
+      <div class="history-entry">
+        <div class="history-entry-info">
+          <div class="history-entry-name">${escHtml(e.name)}</div>
+          <div class="history-entry-macros">${e.prot}g P · ${e.carbs}g C · ${e.fat}g F</div>
+        </div>
+        <span class="history-entry-kcal">${e.kcal}</span>
+        <button class="btn-history-fav" onclick="saveHistoryEntryAsFav('${date}', ${i})" title="Save to Favourites">⭐</button>
+      </div>`).join('');
+
+    return `<div class="history-day">
+      <div class="history-day-header" onclick="toggleHistoryDay('${date}')">
+        <div>
+          <div class="history-day-label">${label}</div>
+          <div class="history-day-summary">${entries.length} items · ${Math.round(totalKcal)} kcal · ${Math.round(totalProt)}g P</div>
+        </div>
+        <span class="history-day-caret" id="caret-${date}">▼</span>
+      </div>
+      <div class="history-entries" id="hist-${date}">${entriesHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHistoryDay(date) {
+  const el    = document.getElementById('hist-' + date);
+  const caret = document.getElementById('caret-' + date);
+  if (!el) return;
+  const open = el.classList.toggle('open');
+  if (caret) caret.textContent = open ? '▲' : '▼';
+}
+
+function saveHistoryEntryAsFav(date, i) {
+  const entry = (history[date] || [])[i];
+  if (!entry) return;
+  const fav = {
+    name:  entry.name,
+    kcal:  entry.kcal,
+    prot:  entry.prot,
+    carbs: entry.carbs,
+    fat:   entry.fat,
+    micro: entry.micro || {},
+  };
+  if (favs.find(f => f.name === fav.name)) {
+    showToast('Already in favourites');
+    return;
+  }
+  favs.push(fav);
+  localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
+  schedulePush();
+  renderFavs();
+  showToast('Saved: ' + fav.name);
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
 
 // Initialise app data (called after PIN unlock)
 function appBoot() {
@@ -2360,7 +2575,29 @@ async function pullOnBoot() {
         if (burnEl) burnEl.value = burn;
       }
     }
+    // Pull history from Gist
+    const remoteHistoryFile = gistData.files?.['edesia-log.json'];
+    if (remoteHistoryFile && remoteHistoryFile.content) {
+      try {
+        const rp = JSON.parse(remoteHistoryFile.content);
+        if (rp.history) {
+          // Merge remote history with local — remote wins per date
+          Object.keys(rp.history).forEach(date => {
+            if (!history[date] || rp.history[date].length > (history[date] || []).length) {
+              history[date] = rp.history[date];
+            }
+          });
+          // Keep only last 7 days
+          const keys = Object.keys(history).sort().reverse().slice(0, 7);
+          const trimmed = {};
+          keys.forEach(k => { trimmed[k] = history[k]; });
+          history = trimmed;
+          localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+        }
+      } catch(e) {}
+    }
     renderAll();
+    renderHistory();
   } catch(e) {
     console.warn('Boot pull failed:', e);
     renderAll();
