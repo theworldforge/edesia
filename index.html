@@ -7,8 +7,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Edesia">
-<title>Edesia Nutrition Tracker</title>
+<meta name="apple-mobile-web-app-title" content="Tracker">
+<title>Paul's Daily Tracker</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -400,49 +400,38 @@
 
 <!-- PIN LOCK SCREEN -->
 <div class="pin-screen" id="pin-screen">
-  <div class="pin-logo">⚡ <span>Edesia</span></div>
+  <div class="pin-logo">⚡ <span>Paul's</span> Tracker</div>
   <div class="pin-subtitle">Daily Nutrition</div>
-
-  <div id="pin-whoami" style="display:none; width:100%; max-width:280px;">
-    <div class="pin-label" style="margin-bottom:20px;">Who's using this device?</div>
-    <button class="pin-key" style="width:100%;margin-bottom:12px;font-size:1.1rem;padding:18px 0;" onclick="chooseUser('paul')">👨 I'm Paul</button>
-    <button class="pin-key" style="width:100%;font-size:1.1rem;padding:18px 0;" onclick="chooseUser('sam')">👩 I'm Sam</button>
+  <div class="pin-label" id="pin-label">Enter PIN</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
   </div>
-
-  <div id="pin-keypad-wrap">
-    <div class="pin-label" id="pin-label">Enter PIN</div>
-    <div class="pin-dots" id="pin-dots">
-      <div class="pin-dot" id="pd0"></div>
-      <div class="pin-dot" id="pd1"></div>
-      <div class="pin-dot" id="pd2"></div>
-      <div class="pin-dot" id="pd3"></div>
-    </div>
-    <div class="pin-keypad">
-      <button class="pin-key" onclick="pinKey('1')">1</button>
-      <button class="pin-key" onclick="pinKey('2')">2</button>
-      <button class="pin-key" onclick="pinKey('3')">3</button>
-      <button class="pin-key" onclick="pinKey('4')">4</button>
-      <button class="pin-key" onclick="pinKey('5')">5</button>
-      <button class="pin-key" onclick="pinKey('6')">6</button>
-      <button class="pin-key" onclick="pinKey('7')">7</button>
-      <button class="pin-key" onclick="pinKey('8')">8</button>
-      <button class="pin-key" onclick="pinKey('9')">9</button>
-      <div class="pin-key empty"></div>
-      <button class="pin-key" onclick="pinKey('0')">0</button>
-      <button class="pin-key del" onclick="pinDel()">⌫</button>
-    </div>
-    <div class="pin-error-msg" id="pin-error"></div>
-    <button class="pin-change-link" id="pin-change-btn" onclick="pinChangeFlow()" style="display:none;">Change PIN</button>
-    <button class="pin-change-link" id="pin-addprofile-btn" onclick="addOtherProfile()" style="display:none;">+ Set up another profile</button>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pinKey('1')">1</button>
+    <button class="pin-key" onclick="pinKey('2')">2</button>
+    <button class="pin-key" onclick="pinKey('3')">3</button>
+    <button class="pin-key" onclick="pinKey('4')">4</button>
+    <button class="pin-key" onclick="pinKey('5')">5</button>
+    <button class="pin-key" onclick="pinKey('6')">6</button>
+    <button class="pin-key" onclick="pinKey('7')">7</button>
+    <button class="pin-key" onclick="pinKey('8')">8</button>
+    <button class="pin-key" onclick="pinKey('9')">9</button>
+    <div class="pin-key empty"></div>
+    <button class="pin-key" onclick="pinKey('0')">0</button>
+    <button class="pin-key del" onclick="pinDel()">⌫</button>
   </div>
+  <div class="pin-error-msg" id="pin-error"></div>
+  <button class="pin-change-link" id="pin-change-btn" onclick="pinChangeFlow()" style="display:none;">Change PIN</button>
 </div>
 
 <header>
-  <h1>⚡ Edesia</h1>
+  <h1>⚡ Paul's Tracker</h1>
   <div style="display:flex;align-items:center;gap:12px;">
-    <span id="user-badge" style="font-size:0.65rem;color:var(--green);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;"></span>
     <span class="date-tag" id="date-display"></span>
-    <button onclick="lockApp()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;padding:2px;" title="Switch user / lock">🔒</button>
+    <button onclick="lockApp()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;padding:2px;" title="Lock">🔒</button>
   </div>
 </header>
 
@@ -568,23 +557,9 @@
     <button class="btn-sm" onclick="saveTargets()">Set</button>
   </div>
 </div>
-<div style="display:flex; gap:10px; padding:6px 16px 0; align-items:center;">
-  <span style="font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;visibility:hidden;">Targets:</span>
-  <div style="display:flex;gap:6px;flex:1;">
-    <input type="number" id="target-bmr" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:5px 8px;" placeholder="BMR">
-    <input type="number" id="target-deficit" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:5px 8px;" placeholder="Deficit">
-    <div style="flex:0 0 auto;width:46px;"></div>
-  </div>
-</div>
 
 <div class="section-header">Favourites</div>
 <div class="favs-grid" id="favs-grid"></div>
-
-<div class="section-header">Shared Library <span class="log-count" id="library-count"></span></div>
-<div style="padding:0 16px;">
-  <input type="text" id="library-search" class="input-name" placeholder="Search foods you or your partner have logged…" oninput="filterLibrary()" style="margin-bottom:8px;">
-</div>
-<div class="favs-grid" id="library-grid"></div>
 
 <div class="section-header" id="planned-section-header" style="display:none;">Planned <span class="log-count" id="planned-count"></span></div>
 <div class="log-list" id="planned-list" style="display:none;"></div>
@@ -827,142 +802,50 @@
 
 <script>
 const STORAGE_PREFIX = 'pt_';
-const KEY_FAVS       = STORAGE_PREFIX + 'favs';      // shared across users
-const KEY_LIBRARY    = STORAGE_PREFIX + 'library';   // shared food library across users
-const KEY_API        = 'scrf_ak';                    // device-level
-const KEY_GIST_TOKEN = STORAGE_PREFIX + 'gist_token'; // device-level
-const KEY_GIST_ID    = STORAGE_PREFIX + 'gist_id';    // device-level
+const KEY_LOG     = STORAGE_PREFIX + 'log';
+const KEY_BURN    = STORAGE_PREFIX + 'burn';
+const KEY_DATE    = STORAGE_PREFIX + 'date';
+const KEY_FAVS    = STORAGE_PREFIX + 'favs';
+const KEY_TARGETS = STORAGE_PREFIX + 'targets';
+const KEY_API     = 'scrf_ak';
+const KEY_PIN     = STORAGE_PREFIX + 'pin';
+const KEY_GIST_TOKEN = STORAGE_PREFIX + 'gist_token';
+const KEY_GIST_ID    = STORAGE_PREFIX + 'gist_id';
+const KEY_DELETED    = STORAGE_PREFIX + 'deleted'; // tombstone list of deleted entry IDs
+const KEY_HISTORY    = STORAGE_PREFIX + 'history'; // rolling 7-day log history
 
+const BMR         = 1760;   // Renpho measured BMR
+const DEFICIT     = 500;    // Daily calorie deficit target
 const FITBIT_ADJ  = 0.82;   // Fitbit overestimates by ~18-20%, correct downward
 
-const USER_NAMES = { paul: "Paul", sam: "Sam" };
-
-const DEFAULT_TARGETS_BY_USER = {
-  paul: { kcal: 2600, prot: 180, carbs: 300, fat: 80, bmr: 1760, deficit: 500 },
-  sam:  { kcal: 1800, prot: 110, carbs: 180, fat: 60, bmr: 1400, deficit: 300 },
-};
-
-// Per-user storage keys — populated by setActiveUser()
-let currentUser = null; // 'paul' | 'sam'
-let KEY_LOG, KEY_BURN, KEY_DATE, KEY_TARGETS, KEY_DELETED, KEY_HISTORY, KEY_PLANNED, KEY_RESETAT;
-
-function setActiveUser(user) {
-  currentUser = user;
-  KEY_LOG     = STORAGE_PREFIX + 'log_'     + user;
-  KEY_BURN    = STORAGE_PREFIX + 'burn_'    + user;
-  KEY_DATE    = STORAGE_PREFIX + 'date_'    + user;
-  KEY_TARGETS = STORAGE_PREFIX + 'targets_' + user;
-  KEY_DELETED = STORAGE_PREFIX + 'deleted_' + user;
-  KEY_HISTORY = STORAGE_PREFIX + 'history_' + user;
-  KEY_PLANNED = STORAGE_PREFIX + 'planned_' + user;
-  KEY_RESETAT = STORAGE_PREFIX + 'resetAt_' + user;
-}
-
-function pinKeyName(user) { return STORAGE_PREFIX + 'pin_' + user; }
-
-// One-time migration: before this update, Paul's data lived under un-namespaced
-// keys (pt_log, pt_history, etc). Copy it across to pt_log_paul etc. so his
-// existing log/history/targets aren't lost when he sets up his profile.
-function migrateLegacyDataToPaul() {
-  const legacyMap = {
-    'pt_log':     STORAGE_PREFIX + 'log_paul',
-    'pt_burn':    STORAGE_PREFIX + 'burn_paul',
-    'pt_date':    STORAGE_PREFIX + 'date_paul',
-    'pt_targets': STORAGE_PREFIX + 'targets_paul',
-    'pt_deleted': STORAGE_PREFIX + 'deleted_paul',
-    'pt_history': STORAGE_PREFIX + 'history_paul',
-    'pt_planned': STORAGE_PREFIX + 'planned_paul',
-    'pt_resetAt': STORAGE_PREFIX + 'resetAt_paul',
-  };
-  let migrated = false;
-  Object.entries(legacyMap).forEach(([oldKey, newKey]) => {
-    const oldVal = localStorage.getItem(oldKey);
-    if (oldVal !== null && localStorage.getItem(newKey) === null) {
-      localStorage.setItem(newKey, oldVal);
-      migrated = true;
-    }
-  });
-  return migrated;
-}
-
-// ─── PIN LOCK / USER PROFILES ────────────────────────────────────────────────
+// ─── PIN LOCK ─────────────────────────────────────────────────────────────────
 
 let pinBuffer = '';
-let pinMode = 'unlock'; // 'unlock' | 'whoami' | 'setup' | 'setup-confirm' | 'change-old' | 'change-new' | 'change-confirm'
+let pinMode = 'unlock'; // 'unlock' | 'setup' | 'setup-confirm' | 'change-old' | 'change-new' | 'change-confirm'
 let pinTemp = '';
-let pinSetupUser = null; // 'paul' | 'sam' — which profile is being created
 
 function pinStart() {
-  const unlockedUser = localStorage.getItem('pt_unlocked');
-  if (unlockedUser && localStorage.getItem(pinKeyName(unlockedUser))) {
-    setActiveUser(unlockedUser);
-    document.getElementById('pin-screen').classList.add('hidden');
-    if (!appBooted) { appBooted = true; appBoot(); }
-    return;
-  }
-
-  const hasPaul = !!localStorage.getItem(pinKeyName('paul'));
-  const hasSam  = !!localStorage.getItem(pinKeyName('sam'));
-
-  if (!hasPaul && !hasSam) {
-    showWhoAmI();
-    return;
-  }
-
-  pinMode = 'unlock';
-  pinBuffer = '';
-  pinTemp = '';
-  document.getElementById('pin-whoami').style.display = 'none';
-  document.getElementById('pin-keypad-wrap').style.display = 'block';
-  document.getElementById('pin-label').textContent = 'Enter PIN';
-  document.getElementById('pin-change-btn').style.display = 'block';
-  document.getElementById('pin-error').textContent = '';
-  updateAddProfileBtn();
-  updatePinDots();
-  document.getElementById('pin-screen').classList.remove('hidden');
-}
-
-function showWhoAmI() {
-  pinMode = 'whoami';
-  document.getElementById('pin-whoami').style.display = 'block';
-  document.getElementById('pin-keypad-wrap').style.display = 'none';
-  document.getElementById('pin-screen').classList.remove('hidden');
-}
-
-function chooseUser(user) {
-  pinSetupUser = user;
-  pinMode = 'setup';
-  pinBuffer = '';
-  pinTemp = '';
-  document.getElementById('pin-whoami').style.display = 'none';
-  document.getElementById('pin-keypad-wrap').style.display = 'block';
-  document.getElementById('pin-label').textContent = `Create a PIN for ${USER_NAMES[user]}`;
-  document.getElementById('pin-change-btn').style.display = 'none';
-  document.getElementById('pin-addprofile-btn').style.display = 'none';
-  document.getElementById('pin-error').textContent = '';
-  updatePinDots();
-}
-
-function addOtherProfile() {
-  const hasPaul = !!localStorage.getItem(pinKeyName('paul'));
-  const hasSam  = !!localStorage.getItem(pinKeyName('sam'));
-  const missing = !hasPaul ? 'paul' : (!hasSam ? 'sam' : null);
-  if (!missing) return;
-  chooseUser(missing);
-}
-
-function updateAddProfileBtn() {
-  const hasPaul = !!localStorage.getItem(pinKeyName('paul'));
-  const hasSam  = !!localStorage.getItem(pinKeyName('sam'));
-  const btn = document.getElementById('pin-addprofile-btn');
-  if (!btn) return;
-  if (hasPaul && hasSam) {
-    btn.style.display = 'none';
+  const stored = localStorage.getItem(KEY_PIN);
+  if (!stored) {
+    // First run — set up a PIN
+    pinMode = 'setup';
+    document.getElementById('pin-label').textContent = 'Create a 4-digit PIN';
+    document.getElementById('pin-change-btn').style.display = 'none';
   } else {
-    const missingName = !hasPaul ? 'Paul' : 'Sam';
-    btn.textContent = `+ Set up ${missingName}'s profile`;
-    btn.style.display = 'block';
+    // Check if already unlocked this session
+    if (localStorage.getItem('pt_unlocked') === '1') {
+      document.getElementById('pin-screen').classList.add('hidden');
+      if (!appBooted) { appBooted = true; appBoot(); }
+      return;
+    }
+    pinMode = 'unlock';
+    document.getElementById('pin-label').textContent = 'Enter PIN';
+    document.getElementById('pin-change-btn').style.display = 'block';
   }
+  pinBuffer = '';
+  pinTemp = '';
+  updatePinDots();
+  document.getElementById('pin-screen').classList.remove('hidden');
 }
 
 function lockApp() {
@@ -970,12 +853,9 @@ function lockApp() {
   pinMode = 'unlock';
   pinBuffer = '';
   pinTemp = '';
-  document.getElementById('pin-whoami').style.display = 'none';
-  document.getElementById('pin-keypad-wrap').style.display = 'block';
   document.getElementById('pin-label').textContent = 'Enter PIN';
   document.getElementById('pin-error').textContent = '';
-  document.getElementById('pin-change-btn').style.display = 'block';
-  updateAddProfileBtn();
+  document.getElementById('pin-change-btn').style.display = localStorage.getItem(KEY_PIN) ? 'block' : 'none';
   updatePinDots();
   document.getElementById('pin-screen').classList.remove('hidden');
 }
@@ -987,7 +867,6 @@ function pinChangeFlow() {
   document.getElementById('pin-label').textContent = 'Enter current PIN';
   document.getElementById('pin-error').textContent = '';
   document.getElementById('pin-change-btn').style.display = 'none';
-  document.getElementById('pin-addprofile-btn').style.display = 'none';
   updatePinDots();
 }
 
@@ -1020,16 +899,11 @@ function pinShake() {
 }
 
 function pinSubmit() {
-  if (pinMode === 'unlock') {
-    const hasPaul = !!localStorage.getItem(pinKeyName('paul'));
-    const hasSam  = !!localStorage.getItem(pinKeyName('sam'));
-    let matched = null;
-    if (hasPaul && pinBuffer === localStorage.getItem(pinKeyName('paul'))) matched = 'paul';
-    else if (hasSam && pinBuffer === localStorage.getItem(pinKeyName('sam'))) matched = 'sam';
+  const stored = localStorage.getItem(KEY_PIN);
 
-    if (matched) {
-      setActiveUser(matched);
-      localStorage.setItem('pt_unlocked', matched);
+  if (pinMode === 'unlock') {
+    if (pinBuffer === stored) {
+      localStorage.setItem('pt_unlocked', '1');
       document.getElementById('pin-screen').classList.add('hidden');
       document.getElementById('pin-error').textContent = '';
     } else {
@@ -1047,15 +921,10 @@ function pinSubmit() {
 
   } else if (pinMode === 'setup-confirm') {
     if (pinBuffer === pinTemp) {
-      localStorage.setItem(pinKeyName(pinSetupUser), pinBuffer);
-      setActiveUser(pinSetupUser);
-      let migrationMsg = '';
-      if (pinSetupUser === 'paul' && migrateLegacyDataToPaul()) {
-        migrationMsg = ' — your existing log & history have been carried over';
-      }
-      localStorage.setItem('pt_unlocked', pinSetupUser);
+      localStorage.setItem(KEY_PIN, pinBuffer);
+      localStorage.setItem('pt_unlocked', '1');
       document.getElementById('pin-screen').classList.add('hidden');
-      showToast('PIN set for ' + USER_NAMES[pinSetupUser] + migrationMsg);
+      showToast('PIN set');
     } else {
       pinShake();
       pinTemp = '';
@@ -1065,7 +934,6 @@ function pinSubmit() {
     }
 
   } else if (pinMode === 'change-old') {
-    const stored = localStorage.getItem(pinKeyName(currentUser));
     if (pinBuffer === stored) {
       pinBuffer = '';
       pinMode = 'change-new';
@@ -1087,7 +955,7 @@ function pinSubmit() {
 
   } else if (pinMode === 'change-confirm') {
     if (pinBuffer === pinTemp) {
-      localStorage.setItem(pinKeyName(currentUser), pinBuffer);
+      localStorage.setItem(KEY_PIN, pinBuffer);
       pinMode = 'unlock';
       pinBuffer = '';
       document.getElementById('pin-screen').classList.add('hidden');
@@ -1102,7 +970,9 @@ function pinSubmit() {
   }
 }
 
-// Micronutrient targets — NHS/EFSA RNI reference values (used for both profiles)
+const DEFAULT_TARGETS = { kcal: 2600, prot: 180, carbs: 300, fat: 80 };
+
+// Micronutrient targets — NHS/EFSA RNI for adult male ~49yrs
 const MICROS = [
   { key: 'mg',  label: 'Magnesium', unit: 'mg',  rda: 300  },  // NHS RNI men
   { key: 'ca',  label: 'Calcium',   unit: 'mg',  rda: 700  },  // NHS RNI men
@@ -1116,10 +986,9 @@ const MICROS = [
 ];
 
 let pendingEntry = null;
-let targets = {};
+let targets = { ...DEFAULT_TARGETS };
 let log = [];
 let favs = [];
-let library = []; // shared food library across users
 let burn = 0;
 let microOpen = false;
 let deleted = new Set(); // tombstone IDs
@@ -1132,24 +1001,18 @@ function todayStr() { return new Date().toISOString().slice(0, 10); }
 function init() {
   document.getElementById('date-display').textContent = new Date().toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
 
-  const userBadge = document.getElementById('user-badge');
-  if (userBadge) userBadge.textContent = USER_NAMES[currentUser] || '';
-
   const savedDate = localStorage.getItem(KEY_DATE);
   const today = todayStr();
   if (savedDate !== today) {
     localStorage.setItem(KEY_DATE, today);
     localStorage.removeItem(KEY_LOG);
     localStorage.removeItem(KEY_BURN);
-    localStorage.removeItem(KEY_PLANNED);
+    localStorage.removeItem(STORAGE_PREFIX + 'planned');
   }
-
-  const userDefaults = DEFAULT_TARGETS_BY_USER[currentUser] || DEFAULT_TARGETS_BY_USER.paul;
 
   try { log = JSON.parse(localStorage.getItem(KEY_LOG)) || []; } catch { log = []; }
   try { favs = JSON.parse(localStorage.getItem(KEY_FAVS)) || []; } catch { favs = []; }
-  try { library = JSON.parse(localStorage.getItem(KEY_LIBRARY)) || []; } catch { library = []; }
-  try { targets = { ...userDefaults, ...JSON.parse(localStorage.getItem(KEY_TARGETS)) }; } catch { targets = { ...userDefaults }; }
+  try { targets = { ...DEFAULT_TARGETS, ...JSON.parse(localStorage.getItem(KEY_TARGETS)) }; } catch {}
   try { deleted = new Set(JSON.parse(localStorage.getItem(KEY_DELETED)) || []); } catch { deleted = new Set(); }
   try { history = JSON.parse(localStorage.getItem(KEY_HISTORY)) || {}; } catch { history = {}; }
   burn = parseInt(localStorage.getItem(KEY_BURN)) || 0;
@@ -1167,10 +1030,6 @@ function init() {
 
   document.getElementById('target-kcal').placeholder = `Kcal (${targets.kcal})`;
   document.getElementById('target-prot').placeholder = `Protein (${targets.prot}g)`;
-  const bmrEl = document.getElementById('target-bmr');
-  const defEl = document.getElementById('target-deficit');
-  if (bmrEl) bmrEl.placeholder = `BMR (${targets.bmr})`;
-  if (defEl) defEl.placeholder = `Deficit (${targets.deficit})`;
 
   renderAll();
 }
@@ -1212,8 +1071,8 @@ function totals() {
 function getEatingTarget() {
   if (burn > 0) {
     const realBurn = Math.round(burn * FITBIT_ADJ);
-    const target   = realBurn - targets.deficit;
-    return Math.max(target, targets.bmr); // never eat below BMR
+    const target   = realBurn - DEFICIT;
+    return Math.max(target, BMR); // never eat below BMR
   }
   return targets.kcal;
 }
@@ -1235,11 +1094,11 @@ function renderAll() {
 
   if (burn > 0) {
     const realBurn  = Math.round(burn * FITBIT_ADJ);
-    const rawTarget = realBurn - targets.deficit;
-    const bmrCapped = rawTarget < targets.bmr;
+    const rawTarget = realBurn - DEFICIT;
+    const bmrCapped = rawTarget < BMR;
     document.getElementById('kcal-card-label').textContent = 'Kcal Remaining';
     document.getElementById('kcal-card-unit').innerHTML =
-      `eat <strong>${kcalTarget}</strong> · burn ~${realBurn} · −${targets.deficit} deficit` +
+      `eat <strong>${kcalTarget}</strong> · burn ~${realBurn} · −${DEFICIT} deficit` +
       (bmrCapped ? ' <span style="color:var(--amber)">⚠ BMR floor</span>' : '');
   } else {
     document.getElementById('kcal-card-label').textContent = 'Kcal Remaining';
@@ -1253,7 +1112,6 @@ function renderAll() {
   renderMicroGrid(t);
   renderLog();
   renderFavs();
-  renderLibrary();
   renderPlanned();
   renderHistory();
 }
@@ -1591,23 +1449,6 @@ function confirmLog() {
 
   log.push(entry);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
-
-  // Add/update in shared library so the other person can quickly re-add this
-  if (!pendingEntry.skipLibrary) {
-    upsertLibrary({
-      name:        pendingEntry.name,
-      kcal:        pendingEntry.kcal,
-      prot:        pendingEntry.prot,
-      carbs:       pendingEntry.carbs,
-      fat:         pendingEntry.fat,
-      fibre:       pendingEntry.fibre,
-      micro:       pendingEntry.micro,
-      base_amount: pendingEntry.base_amount,
-      base_unit:   pendingEntry.base_unit,
-    });
-    renderLibrary();
-  }
-
   schedulePush();
   document.getElementById('food-input').value = '';
   document.getElementById('food-input').style.height = 'auto';
@@ -1661,116 +1502,6 @@ function deleteFav(i) {
   renderFavs();
 }
 
-// ─── SHARED FOOD LIBRARY ──────────────────────────────────────────────────────
-// A shared, auto-populated record of every food either user has logged.
-// Lets one person quickly re-add something the other person logged before,
-// without recalculating via AI.
-
-const LIBRARY_MAX = 100;
-
-function libNameKey(name) {
-  return (name || '').toLowerCase().replace(/\s*\([^)]*\)\s*$/, '').trim();
-}
-
-function upsertLibrary(item) {
-  const key = libNameKey(item.name);
-  if (!key) return;
-  const entry = {
-    name:        item.name,
-    kcal:        item.kcal || 0,
-    prot:        item.prot || 0,
-    carbs:       item.carbs || 0,
-    fat:         item.fat || 0,
-    fibre:       item.fibre || 0,
-    micro:       item.micro || {},
-    base_amount: item.base_amount || null,
-    base_unit:   item.base_unit || null,
-    loggedBy:    currentUser,
-    lastUsed:    Date.now(),
-  };
-  const idx = library.findIndex(l => libNameKey(l.name) === key);
-  if (idx >= 0) library[idx] = entry;
-  else library.unshift(entry);
-
-  // Cap size, keep most recently used
-  if (library.length > LIBRARY_MAX) {
-    library.sort((a, b) => (b.lastUsed || 0) - (a.lastUsed || 0));
-    library = library.slice(0, LIBRARY_MAX);
-  }
-  localStorage.setItem(KEY_LIBRARY, JSON.stringify(library));
-}
-
-// Merge a remote library array into the local one — newer lastUsed wins per item
-function mergeLibrary(remoteLib) {
-  if (!Array.isArray(remoteLib)) return;
-  let changed = false;
-  remoteLib.forEach(rl => {
-    const key = libNameKey(rl.name);
-    if (!key) return;
-    const idx = library.findIndex(l => libNameKey(l.name) === key);
-    if (idx < 0) {
-      library.push(rl);
-      changed = true;
-    } else if ((rl.lastUsed || 0) > (library[idx].lastUsed || 0)) {
-      library[idx] = rl;
-      changed = true;
-    }
-  });
-  if (changed) {
-    library.sort((a, b) => (b.lastUsed || 0) - (a.lastUsed || 0));
-    if (library.length > LIBRARY_MAX) library = library.slice(0, LIBRARY_MAX);
-    localStorage.setItem(KEY_LIBRARY, JSON.stringify(library));
-  }
-}
-
-function renderLibrary(filter) {
-  const grid = document.getElementById('library-grid');
-  const countEl = document.getElementById('library-count');
-  if (!grid) return;
-
-  const q = (filter || document.getElementById('library-search')?.value || '').toLowerCase().trim();
-  let items = library.slice().sort((a, b) => (b.lastUsed || 0) - (a.lastUsed || 0));
-  if (q) items = items.filter(l => l.name.toLowerCase().includes(q));
-
-  if (countEl) countEl.textContent = library.length ? `${library.length}` : '';
-
-  if (!items.length) {
-    grid.innerHTML = `<span style="font-size:0.7rem;color:var(--muted);padding:4px;">${library.length ? 'No matches.' : 'Nothing logged yet by either of you.'}</span>`;
-    return;
-  }
-
-  grid.innerHTML = items.slice(0, 30).map(item => {
-    const key = libNameKey(item.name);
-    const realIdx = library.findIndex(l => libNameKey(l.name) === key);
-    const who = USER_NAMES[item.loggedBy] || '';
-    return `<div class="fav-chip" onclick="addLibraryItem(${realIdx})">
-      ${escHtml(item.name)} <span class="fav-chip-kcal">${item.kcal}kcal · ${escHtml(who)}</span>
-    </div>`;
-  }).join('');
-}
-
-function filterLibrary() {
-  renderLibrary();
-}
-
-function addLibraryItem(i) {
-  const item = library[i];
-  if (!item) return;
-  pendingEntry = {
-    name:        item.name,
-    kcal:        item.kcal,
-    prot:        item.prot,
-    carbs:       item.carbs,
-    fat:         item.fat,
-    fibre:       item.fibre,
-    micro:       item.micro || {},
-    base_amount: item.base_amount,
-    base_unit:   item.base_unit,
-    time:        new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }),
-  };
-  showModal(pendingEntry);
-}
-
 // ─── GIST SYNC ────────────────────────────────────────────────────────────────
 
 function saveGistSettings() {
@@ -1804,10 +1535,9 @@ async function pushToGist(token, gistId) {
     planned: planned,
     deleted: [...deleted],
     date:    todayStr(),
-    resetAt: localStorage.getItem(KEY_RESETAT) || '0',
+    resetAt: localStorage.getItem('pt_resetAt') || '0',
     history: history,
   };
-  const logFileName = `edesia-log-${currentUser}.json`;
   const res = await fetch(`https://api.github.com/gists/${gistId}`, {
     method: 'PATCH',
     headers: {
@@ -1818,8 +1548,7 @@ async function pushToGist(token, gistId) {
     body: JSON.stringify({
       files: {
         'edesia-favourites.json': { content: JSON.stringify(favs, null, 2) },
-        'edesia-library.json':    { content: JSON.stringify(library, null, 2) },
-        [logFileName]:            { content: JSON.stringify(payload, null, 2) }
+        'edesia-log.json':        { content: JSON.stringify(payload, null, 2) }
       }
     })
   });
@@ -1839,7 +1568,7 @@ async function syncAll(showFeedback = false) {
   if (btn) btn.textContent = '…';
 
   // If we reset very recently, only push — don't pull (Gist CDN may be stale)
-  const resetAt = parseInt(localStorage.getItem(KEY_RESETAT) || '0');
+  const resetAt = parseInt(localStorage.getItem(STORAGE_PREFIX + 'resetAt') || '0');
   const justReset = Date.now() - resetAt < 60000;
   if (justReset) {
     try {
@@ -1868,22 +1597,15 @@ async function syncAll(showFeedback = false) {
       localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
     }
 
-    // ── Shared Library ──
-    const remoteLibRaw = gistData.files?.['edesia-library.json']?.content || '[]';
-    try {
-      const remoteLib = JSON.parse(remoteLibRaw);
-      mergeLibrary(remoteLib);
-    } catch(e) {}
-
     // ── Daily log, burn, planned ──
-    const remoteLogFile = gistData.files?.[`edesia-log-${currentUser}.json`];
+    const remoteLogFile = gistData.files?.['edesia-log.json'];
     if (remoteLogFile && remoteLogFile.content) {
       const remotePayload = JSON.parse(remoteLogFile.content);
       const today = todayStr();
       if (remotePayload.date === today) {
 
         // ── Reset timestamp check ──
-        const localResetAt  = parseInt(localStorage.getItem(KEY_RESETAT) || '0');
+        const localResetAt  = parseInt(localStorage.getItem('pt_resetAt') || '0');
         const remoteResetAt = parseInt(remotePayload.resetAt || '0');
 
         if (remoteResetAt > localResetAt) {
@@ -1895,7 +1617,7 @@ async function syncAll(showFeedback = false) {
           localStorage.setItem(KEY_LOG,     JSON.stringify(log));
           localStorage.setItem(KEY_BURN,    burn);
           localStorage.setItem(KEY_DELETED, JSON.stringify([...deleted]));
-          localStorage.setItem(KEY_RESETAT, String(remoteResetAt));
+          localStorage.setItem('pt_resetAt', String(remoteResetAt));
           savePlanned();
           const burnEl = document.getElementById('fitbit-burn');
           if (burnEl) burnEl.value = burn || '';
@@ -1933,7 +1655,7 @@ async function syncAll(showFeedback = false) {
       }
     }
 
-    // Always push local state up (creates edesia-log-<user>.json if missing)
+    // Always push local state up (creates edesia-log.json if missing)
     await pushToGist(token, gistId);
     renderAll();
     if (showFeedback) showToast('Synced ✓');
@@ -1970,25 +1692,13 @@ function updateBurn() {
 function saveTargets() {
   const k = parseInt(document.getElementById('target-kcal').value);
   const p = parseInt(document.getElementById('target-prot').value);
-  const bmrInput = document.getElementById('target-bmr');
-  const defInput = document.getElementById('target-deficit');
-  const b = bmrInput ? parseInt(bmrInput.value) : NaN;
-  const d = defInput ? defInput.value : '';
-
   if (k) targets.kcal = k;
   if (p) targets.prot = p;
-  if (!isNaN(b) && b > 0) targets.bmr = b;
-  if (d !== '' && !isNaN(parseInt(d))) targets.deficit = parseInt(d);
-
   localStorage.setItem(KEY_TARGETS, JSON.stringify(targets));
   document.getElementById('target-kcal').value = '';
   document.getElementById('target-prot').value = '';
-  if (bmrInput) bmrInput.value = '';
-  if (defInput) defInput.value = '';
   document.getElementById('target-kcal').placeholder = `Kcal (${targets.kcal})`;
   document.getElementById('target-prot').placeholder = `Protein (${targets.prot}g)`;
-  if (bmrInput) bmrInput.placeholder = `BMR (${targets.bmr})`;
-  if (defInput) defInput.placeholder = `Deficit (${targets.deficit})`;
   renderAll();
   showToast('Targets updated');
 }
@@ -2005,8 +1715,8 @@ function confirmReset() {
     localStorage.removeItem(KEY_LOG);
     localStorage.removeItem(KEY_BURN);
     localStorage.removeItem(KEY_DELETED);
-    localStorage.removeItem(KEY_PLANNED);
-    localStorage.setItem(KEY_RESETAT, resetAt);
+    localStorage.removeItem(STORAGE_PREFIX + 'planned');
+    localStorage.setItem(STORAGE_PREFIX + 'resetAt', resetAt);
     const token  = localStorage.getItem(KEY_GIST_TOKEN);
     const gistId = localStorage.getItem(KEY_GIST_ID);
     if (token && gistId) pushToGist(token, gistId).catch(() => {});
@@ -2186,6 +1896,131 @@ function saveEdit() {
   showToast('Updated');
 }
 
+// ─── PLAN AHEAD ──────────────────────────────────────────────────────────────
+
+let planEntry = null;
+
+function togglePlanPanel() {
+  const panel = document.getElementById('plan-panel');
+  panel.classList.toggle('open');
+}
+
+async function calcPlan() {
+  const text = document.getElementById('plan-input').value.trim();
+  if (!text) return;
+  const apiKey = localStorage.getItem(KEY_API);
+  if (!apiKey) { showToast('Please save your API key first', true); return; }
+
+  const btn = document.getElementById('plan-btn');
+  btn.disabled = true;
+  btn.textContent = '…';
+  document.getElementById('plan-results').classList.remove('open');
+
+  try {
+    // Step 1: get macros for planned dinner
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 400,
+        system: `You are a nutrition calculator. Return ONLY valid JSON, no markdown, no explanation:
+{"name":"string","kcal":number,"prot":number,"carbs":number,"fat":number}`,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.content.find(b => b.type === 'text')?.text || '';
+    planEntry = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    // Show dinner macros
+    document.getElementById('pl-kcal').textContent  = Math.round(planEntry.kcal);
+    document.getElementById('pl-prot').textContent  = Math.round(planEntry.prot * 10) / 10 + 'g';
+    document.getElementById('pl-carbs').textContent = Math.round(planEntry.carbs * 10) / 10 + 'g';
+    document.getElementById('pl-fat').textContent   = Math.round(planEntry.fat * 10) / 10 + 'g';
+
+    // Step 2: projected totals
+    const t = totals();
+    const kcalTarget = getEatingTarget();
+    const proj = {
+      kcal:  t.kcal  + planEntry.kcal,
+      prot:  t.prot  + planEntry.prot,
+      carbs: t.carbs + planEntry.carbs,
+      fat:   t.fat   + planEntry.fat,
+    };
+
+    const projCards = [
+      { label: 'Kcal', val: Math.round(proj.kcal), target: kcalTarget, unit: 'kcal' },
+      { label: 'Protein', val: Math.round(proj.prot * 10)/10, target: targets.prot, unit: 'g' },
+    ];
+    document.getElementById('plan-projected').innerHTML = projCards.map(c => {
+      const rem = c.target - c.val;
+      const state = c.val > c.target * 1.05 ? 'over' : c.val > c.target * 0.9 ? 'on-track' : 'caution';
+      return `<div class="plan-proj-card ${state}">
+        <div class="plan-proj-val ${state}">${c.val}${c.unit === 'g' ? 'g' : ''}</div>
+        <div class="plan-proj-lbl">${c.label} projected</div>
+        <div style="font-size:0.58rem;color:var(--muted);margin-top:2px;">${rem >= 0 ? rem + ' under target' : Math.abs(rem) + ' over target'}</div>
+      </div>`;
+    }).join('');
+
+    // Step 3: gap chips (what's still needed before dinner)
+    const gapKcal  = Math.round(kcalTarget  - proj.kcal);
+    const gapProt  = Math.round(targets.prot  - proj.prot);
+    const gapCarbs = Math.round(targets.carbs - proj.carbs);
+    const gapFat   = Math.round(targets.fat   - proj.fat);
+
+    const chipClass = (v, thr) => v < -thr ? 'over' : v > thr ? 'need' : 'good';
+    document.getElementById('plan-gap-chips').innerHTML = [
+      { label: `${gapKcal >= 0 ? '' : ''}${gapKcal} kcal`, cls: chipClass(gapKcal, 150) },
+      { label: `${gapProt >= 0 ? '' : ''}${gapProt}g protein`, cls: chipClass(gapProt, 10) },
+      { label: `${gapCarbs >= 0 ? '' : ''}${gapCarbs}g carbs`, cls: chipClass(gapCarbs, 30) },
+      { label: `${gapFat >= 0 ? '' : ''}${gapFat}g fat`, cls: chipClass(gapFat, 10) },
+    ].map(g => `<span class="rec-gap-chip ${g.cls}">${g.label}</span>`).join('');
+
+    // Step 4: snack suggestions factoring in planned dinner
+    document.getElementById('plan-snacks').innerHTML = '<div style="color:var(--muted);font-size:0.72rem;"><span class="spinner"></span> Finding snacks…</div>';
+
+    const logSummary = log.length ? log.map(e => e.name).join(', ') : 'nothing yet';
+    const snackPrompt = `Nutrition targets: ${kcalTarget} kcal, ${targets.prot}g protein, ${targets.carbs}g carbs, ${targets.fat}g fat.
+Eaten so far: ${logSummary}.
+Planned dinner (not yet eaten): ${planEntry.name} — ${Math.round(planEntry.kcal)} kcal, ${Math.round(planEntry.prot)}g P, ${Math.round(planEntry.carbs)}g C, ${Math.round(planEntry.fat)}g F.
+After eating dinner the gaps will be: ${gapKcal} kcal, ${gapProt}g protein, ${gapCarbs}g carbs, ${gapFat}g fat.
+Suggest 3-4 snacks to eat BEFORE dinner to close these gaps. Person trains 5x/week, cooks from scratch, prioritises protein.
+Return ONLY valid JSON: {"snacks":[{"name":"...","why":"one sentence","kcal":number,"prot":number}]}`;
+
+    const r2 = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 500, messages: [{ role: 'user', content: snackPrompt }] })
+    });
+    const d2 = await r2.json();
+    const raw2 = d2.content.find(b => b.type === 'text')?.text || '';
+    const parsed2 = JSON.parse(raw2.replace(/```json|```/g, '').trim());
+
+    document.getElementById('plan-snacks').innerHTML = (parsed2.snacks || []).map(s =>
+      `<div class="plan-snack">
+        <div class="plan-snack-name">${escHtml(s.name)} <span style="color:var(--green);font-size:0.7rem;">${s.kcal}kcal · ${s.prot}g P</span></div>
+        <div class="plan-snack-why">${escHtml(s.why)}</div>
+      </div>`
+    ).join('');
+
+    document.getElementById('plan-results').classList.add('open');
+
+  } catch (err) {
+    document.getElementById('plan-snacks').innerHTML = `<div style="color:var(--red);font-size:0.72rem;">Error: ${escHtml(err.message || 'Unknown')}</div>`;
+    document.getElementById('plan-results').classList.add('open');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Calculate';
+  }
+}
+
 // ─── PLAN AHEAD — MULTI-ITEM PLANNED LIST ────────────────────────────────────
 
 let planned = []; // array of {name, kcal, prot, carbs, fat, micro}
@@ -2195,11 +2030,11 @@ function togglePlanPanel() {
 }
 
 function savePlanned() {
-  localStorage.setItem(KEY_PLANNED, JSON.stringify(planned));
+  localStorage.setItem(STORAGE_PREFIX + 'planned', JSON.stringify(planned));
 }
 
 function loadPlanned() {
-  try { planned = JSON.parse(localStorage.getItem(KEY_PLANNED)) || []; } catch { planned = []; }
+  try { planned = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'planned')) || []; } catch { planned = []; }
 }
 
 async function addPlannedFood() {
@@ -2265,15 +2100,6 @@ function eatPlanned(i) {
   planned.splice(i, 1);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
   savePlanned();
-  upsertLibrary({
-    name:  item.name,
-    kcal:  item.kcal,
-    prot:  item.prot,
-    carbs: item.carbs,
-    fat:   item.fat,
-    micro: item.micro,
-  });
-  renderLibrary();
   schedulePush();
   renderAll();
   showToast('Logged: ' + item.name);
@@ -2545,24 +2371,8 @@ function logRecipe() {
 
   log.push(entry);
   localStorage.setItem(KEY_LOG, JSON.stringify(log));
-
-  // Add full recipe batch to shared library so the other person can reuse it
-  let libBaseAmount = null, libBaseUnit = null;
-  if (recipeEntry.total_weight_g) { libBaseAmount = recipeEntry.total_weight_g; libBaseUnit = 'g'; }
-  else if (recipeEntry.serves)    { libBaseAmount = recipeEntry.serves; libBaseUnit = 'serving'; }
-  upsertLibrary({
-    name:        recipeEntry.name,
-    kcal:        recipeEntry.kcal,
-    prot:        recipeEntry.prot,
-    carbs:       recipeEntry.carbs,
-    fat:         recipeEntry.fat,
-    micro:       recipeEntry.micro,
-    base_amount: libBaseAmount,
-    base_unit:   libBaseUnit,
-  });
-  renderLibrary();
-
   schedulePush();
+  closeRecipeModal();
   document.getElementById('food-name').value = '';
   renderAll();
   showToast('Added: ' + customName);
@@ -2586,11 +2396,11 @@ function scheduleMidnightReset() {
     log = []; burn = 0; planned = []; deleted = new Set();
     const resetAt = String(Date.now());
     localStorage.setItem(KEY_DATE, todayStr());
-    localStorage.setItem(KEY_RESETAT, resetAt);
+    localStorage.setItem(STORAGE_PREFIX + 'resetAt', resetAt);
     localStorage.removeItem(KEY_LOG);
     localStorage.removeItem(KEY_BURN);
     localStorage.removeItem(KEY_DELETED);
-    localStorage.removeItem(KEY_PLANNED);
+    localStorage.removeItem(STORAGE_PREFIX + 'planned');
     const _t = localStorage.getItem(KEY_GIST_TOKEN);
     const _g = localStorage.getItem(KEY_GIST_ID);
     if (_t && _g) pushToGist(_t, _g).catch(() => {});
@@ -2693,7 +2503,7 @@ function appBoot() {
 // Never push on boot — only push when user makes a change
 async function pullOnBoot() {
   // If we reset very recently, don't pull — Gist CDN may still have stale data
-  const resetAt = parseInt(localStorage.getItem(KEY_RESETAT) || '0');
+  const resetAt = parseInt(localStorage.getItem(STORAGE_PREFIX + 'resetAt') || '0');
   if (Date.now() - resetAt < 60000) {
     // Reset happened less than 60 seconds ago — skip pull entirely
     renderAll();
@@ -2717,20 +2527,13 @@ async function pullOnBoot() {
       localStorage.setItem(KEY_FAVS, JSON.stringify(favs));
     }
 
-    // Shared Library — merge in entries from both users
-    const remoteLibRaw = gistData.files?.['edesia-library.json']?.content || '[]';
-    try {
-      const remoteLib = JSON.parse(remoteLibRaw);
-      mergeLibrary(remoteLib);
-    } catch(e) {}
-
-    const remoteLogFile = gistData.files?.[`edesia-log-${currentUser}.json`];
-    if (!remoteLogFile || !remoteLogFile.content) { renderAll(); renderHistory(); return; }
+    const remoteLogFile = gistData.files?.['edesia-log.json'];
+    if (!remoteLogFile || !remoteLogFile.content) { renderAll(); return; }
     const remotePayload = JSON.parse(remoteLogFile.content);
     const today = todayStr();
-    if (remotePayload.date !== today) { renderAll(); renderHistory(); return; }
+    if (remotePayload.date !== today) { renderAll(); return; }
 
-    const localResetAt  = parseInt(localStorage.getItem(KEY_RESETAT) || '0');
+    const localResetAt  = parseInt(localStorage.getItem(STORAGE_PREFIX + 'resetAt') || '0');
     const remoteResetAt = parseInt(remotePayload.resetAt || '0');
 
     if (remoteResetAt > localResetAt) {
@@ -2742,7 +2545,7 @@ async function pullOnBoot() {
       localStorage.setItem(KEY_LOG,     JSON.stringify(log));
       localStorage.setItem(KEY_BURN,    String(burn));
       localStorage.setItem(KEY_DELETED, JSON.stringify([...deleted]));
-      localStorage.setItem(KEY_RESETAT, String(remoteResetAt));
+      localStorage.setItem(STORAGE_PREFIX + 'resetAt', String(remoteResetAt));
       savePlanned();
       const burnEl = document.getElementById('fitbit-burn');
       if (burnEl) burnEl.value = burn || '';
@@ -2772,20 +2575,25 @@ async function pullOnBoot() {
         if (burnEl) burnEl.value = burn;
       }
     }
-    // Merge history from this user's own log payload
-    if (remotePayload.history) {
+    // Pull history from Gist
+    const remoteHistoryFile = gistData.files?.['edesia-log.json'];
+    if (remoteHistoryFile && remoteHistoryFile.content) {
       try {
-        Object.keys(remotePayload.history).forEach(date => {
-          if (!history[date] || remotePayload.history[date].length > (history[date] || []).length) {
-            history[date] = remotePayload.history[date];
-          }
-        });
-        // Keep only last 7 days
-        const keys = Object.keys(history).sort().reverse().slice(0, 7);
-        const trimmed = {};
-        keys.forEach(k => { trimmed[k] = history[k]; });
-        history = trimmed;
-        localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+        const rp = JSON.parse(remoteHistoryFile.content);
+        if (rp.history) {
+          // Merge remote history with local — remote wins per date
+          Object.keys(rp.history).forEach(date => {
+            if (!history[date] || rp.history[date].length > (history[date] || []).length) {
+              history[date] = rp.history[date];
+            }
+          });
+          // Keep only last 7 days
+          const keys = Object.keys(history).sort().reverse().slice(0, 7);
+          const trimmed = {};
+          keys.forEach(k => { trimmed[k] = history[k]; });
+          history = trimmed;
+          localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+        }
       } catch(e) {}
     }
     renderAll();
