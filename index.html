@@ -1761,18 +1761,13 @@ function updatePortion() {
   if (!pendingEntry) return;
   const amount = parseFloat(document.getElementById('portion-amount').value);
   const total  = parseFloat(document.getElementById('portion-total').value);
-  const ratio  = (amount > 0 && total > 0 && amount <= total) ? amount / total : 1;
+  const ratio  = (amount > 0 && total > 0) ? amount / total : 1;
   const hint   = document.getElementById('portion-hint');
 
   if (amount > 0 && total > 0) {
-    if (amount > total) {
-      hint.textContent = 'Portion cannot exceed total';
-      hint.style.color = 'var(--red)';
-    } else {
-      const pct = Math.round(ratio * 100);
-      hint.textContent = `Logging ${pct}% of the total`;
-      hint.style.color = 'var(--green)';
-    }
+    const pct = Math.round(ratio * 100);
+    hint.textContent = `Logging ${amount}${document.getElementById('portion-unit').value} (${pct}% of ${total})`;
+    hint.style.color = pct > 100 ? 'var(--amber)' : 'var(--green)';
   } else {
     hint.textContent = 'Leave blank to log the full amount';
     hint.style.color = 'var(--muted)';
@@ -1855,7 +1850,7 @@ function confirmLog() {
   const amount = parseFloat(document.getElementById('portion-amount').value);
   const total  = parseFloat(document.getElementById('portion-total').value);
   const unit   = document.getElementById('portion-unit').value;
-  const ratio  = (amount > 0 && total > 0 && amount <= total) ? amount / total : 1;
+  const ratio  = (amount > 0 && total > 0) ? amount / total : 1;
 
   // Build a meaningful name suffix
   let nameSuffix = '';
