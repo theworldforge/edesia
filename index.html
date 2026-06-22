@@ -1492,43 +1492,49 @@ async function searchFood() {
   resultsEl.innerHTML = '<div style="font-size:0.7rem;color:var(--muted);padding:4px;">Searching…</div>';
 
   try {
-    // Search Open Food Facts — prioritise UK products, search all fields
-    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=10&fields=product_name,brands,nutriments,serving_size,serving_quantity,quantity,countries_tags`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Search failed: ' + res.status);
-    const data = await res.json();
-    const products = data.products || [];
+    const scored = await offSearch(query);
 
-    if (!products.length) {
-      resultsEl.innerHTML = '<div style="font-size:0.7rem;color:var(--muted);padding:4px;">No results found. Try different keywords or use AI Describe.</div>';
+    // Fallback: if fewer than 3 results, try trimming last word (catches typos like "Heinze")
+    let finalResults = scored;
+    if (scored.length < 3 && query.includes(' ')) {
+      const trimmed = query.split(' ').slice(0, -1).join(' ');
+      const fallback = await offSearch(trimmed);
+      if (fallback.length > scored.length) {
+        finalResults = fallback;
+        resultsEl.dataset.fallback = `Showing results for "${trimmed}"`;
+      }
+    } else if (scored.length < 3 && query.length > 4) {
+      // Try dropping last character (single-word typo like "Heinze" → "Heinz")
+      const trimmed = query.slice(0, -1);
+      const fallback = await offSearch(trimmed);
+      if (fallback.length > scored.length) {
+        finalResults = fallback;
+        resultsEl.dataset.fallback = `Showing results for "${trimmed}"`;
+      }
+    }
+
+    if (!finalResults.length) {
+      resultsEl.innerHTML = '<div style="font-size:0.7rem;color:var(--muted);padding:4px;">No results found — try different keywords or use AI Describe.</div>';
       return;
     }
 
-    // Filter and sort: UK products first, must have calorie data
-    const scored = products
-      .filter(p => p.nutriments && (p.nutriments['energy-kcal_100g'] || p.nutriments['energy-kcal']))
-      .map(p => ({
-        ...p,
-        ukScore: (p.countries_tags || []).some(c => c.includes('united-kingdom') || c.includes('en:gb')) ? 1 : 0
-      }))
-      .sort((a, b) => b.ukScore - a.ukScore);
+    const fallbackNote = resultsEl.dataset.fallback
+      ? `<div style="font-size:0.62rem;color:var(--amber);padding:2px 0 6px;">${escHtml(resultsEl.dataset.fallback)}</div>`
+      : '';
+    resultsEl.dataset.fallback = '';
 
-    if (!scored.length) {
-      resultsEl.innerHTML = '<div style="font-size:0.7rem;color:var(--muted);padding:4px;">No products found with nutritional data. Try AI Describe instead.</div>';
-      return;
-    }
-
-    resultsEl.innerHTML = scored.slice(0, 8).map((p, i) => {
+    resultsEl.innerHTML = fallbackNote + finalResults.slice(0, 20).map((p, i) => {
       const name  = (p.product_name || 'Unknown product').slice(0, 60);
       const brand = p.brands ? p.brands.split(',')[0].trim() : '';
       const n     = p.nutriments;
-      const kcal  = Math.round(n['energy-kcal_100g'] || (n['energy-kcal'] / (parseFloat(p.serving_quantity) || 100) * 100) || 0);
+      const kcal  = Math.round(n['energy-kcal_100g'] || 0);
       const prot  = Math.round((n['proteins_100g'] || 0) * 10) / 10;
       const carbs = Math.round((n['carbohydrates_100g'] || 0) * 10) / 10;
       const fat   = Math.round((n['fat_100g'] || 0) * 10) / 10;
+      const ukBadge = p.ukScore ? '<span style="font-size:0.55rem;color:var(--green);margin-left:4px;">🇬🇧</span>' : '';
       return `<div class="search-result" onclick="selectSearchResult(${i})">
         <div class="search-result-info">
-          <div class="search-result-name">${escHtml(name)}</div>
+          <div class="search-result-name">${escHtml(name)}${ukBadge}</div>
           ${brand ? `<div class="search-result-brand">${escHtml(brand)}</div>` : ''}
           <div class="search-result-macros">per 100g · ${prot}g P · ${carbs}g C · ${fat}g F</div>
         </div>
@@ -1536,8 +1542,7 @@ async function searchFood() {
       </div>`;
     }).join('');
 
-    // Store results for selection
-    window._searchResults = scored.slice(0, 8);
+    window._searchResults = finalResults.slice(0, 20);
 
   } catch(err) {
     resultsEl.innerHTML = `<div style="font-size:0.7rem;color:var(--red);padding:4px;">Error: ${escHtml(err.message)}. Check your connection or try AI Describe.</div>`;
@@ -1545,6 +1550,21 @@ async function searchFood() {
     btn.disabled = false;
     btn.textContent = 'Search';
   }
+}
+
+// Shared Open Food Facts query — returns sorted, filtered products
+async function offSearch(query) {
+  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=30&fields=product_name,brands,nutriments,serving_size,serving_quantity,quantity,countries_tags`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Search failed: ' + res.status);
+  const data = await res.json();
+  return (data.products || [])
+    .filter(p => p.nutriments && p.nutriments['energy-kcal_100g'] > 0)
+    .map(p => ({
+      ...p,
+      ukScore: (p.countries_tags || []).some(c => c.includes('united-kingdom') || c.includes('en:gb')) ? 1 : 0
+    }))
+    .sort((a, b) => b.ukScore - a.ukScore);
 }
 
 function selectSearchResult(i) {
